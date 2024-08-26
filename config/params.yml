@@ -1,32 +1,21 @@
 # Execution parameters
 ---
-preprocess:
-  fastp:
-    length_required: 25  # nonpareil requires at least 25bp
-    extra: "--trim_poly_g --trim_poly_x"
-  bowtie2:
-    samtools:
-      mem_per_thread: 1G
+checkm2:
+  extra: ""
 
-assemble:
-  megahit:
-    min_contig_len: 1500
-  samtools:
-    mem: 1G
+dram:
+  annotate:
+    min_contig_size: 1500
+  distill:
 
-quantify:
-  samtools:
-    mem: 1G
-  coverm:
-    genome:
-      methods:  ["count", "covered_bases", "length"]  # https://github.com/wwood/CoverM#calculation-methods
-      min_covered_fraction: 0.0
-      separator: "@"
-    contig:
-      methods:  ["count", "covered_bases", "length"]  # https://github.com/wwood/CoverM#calculation-methods
+gtdbtk:
+  extra: ""
 
-viral:
-  genomad:
-    filtering: ""  # nothing, --conservative, or --relaxed
-    use_cuda: "export CUDA_VISIBLE_DEVICES=-1"  # in case you have problems with cuda and tensorflow
-    extra: "--disable-nn-classification"  # leave empty if you want to use. it is here to disable it for testing
+drep:
+  secondary_anis: 
+    - 0.90
+    - 0.95
+    - 0.98
+    - 0.99
+  minimum_completeness: 75
+  maximum_contamination: 25

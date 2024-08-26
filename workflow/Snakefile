@@ -9,39 +9,23 @@ import yaml
 # Import configuration files
 params = yaml.load(open("config/params.yml", "r"), Loader=yaml.SafeLoader)
 features = yaml.load(open("config/features.yml", "r"), Loader=yaml.SafeLoader)
-samples = pd.read_table("config/samples.tsv", comment="#", dtype="str")
 
 # Generate useful variables
-samples = (
-    samples.assign(assembly_id=samples.assembly_ids.str.replace(" ", "").str.split(","))
-    .explode("assembly_id")
-    .sort_values(by=["assembly_id", "sample_id", "library_id"])
-)
-samples = samples.assign(assembly_id=samples.assembly_id.str.strip())
-
-SAMPLES = samples.sample_id.unique()
-SAMPLE_LIBRARY = samples[["sample_id", "library_id"]].values.tolist()
-ASSEMBLY_SAMPLE_LIBRARY = (
-    samples[["assembly_id", "sample_id", "library_id"]].dropna(axis=0).values.tolist()
-)
-ASSEMBLIES = [
-    assembly_id
-    for assembly_id in samples.assembly_id.unique()
-    if not pd.isna(assembly_id)
-]
-KRAKEN2_DBS = features["databases"]["kraken2"]
-HOST_NAMES = [] if features["hosts"] is None else list(features["hosts"].keys())
-LAST_HOST = HOST_NAMES[-1] if len(HOST_NAMES) > 0 else None
-
+SECONDARY_ANIS = params["drep"]["secondary_anis"]
 
 # Import subworkflows
-include: "rules/__main__.smk"
-
+include: "rules/folders.smk"
+include: "rules/__functions__.smk"
+include: "rules/mags.smk"
+include: "rules/checkm2.smk"
+include: "rules/drep.smk"
+include: "rules/gtdbtk.smk"
+include: "rules/dram.smk"
 
 rule all:
     """Run the entire pipeline"""
     input:
-        rules.reads.input,
-        rules.preprocess.input,
-        rules.assemble.input,
-        rules.report.input,
+        rules.checkm2.input,
+        # rules.drep.input,
+        # rules.gtdbtk.input,
+        # rules.dram.input,
