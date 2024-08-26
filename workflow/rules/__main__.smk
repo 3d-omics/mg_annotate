@@ -4,4 +4,3 @@ include: "checkm2.smk"
 include: "gtdbtk.smk"
 include: "dram.smk"
 include: "drep.smk"
-

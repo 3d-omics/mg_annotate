@@ -12,7 +12,7 @@ gtdbtk:
   extra: ""
 
 drep:
-  secondary_anis: 
+  secondary_anis:
     - 0.90
     - 0.95
     - 0.98

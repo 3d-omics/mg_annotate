@@ -1,16 +1,16 @@
 rule mags:
     input:
-        features["mag_catalogue_dir"]
+        features["mag_catalogue_dir"],
     output:
-        directory(MAGS)
+        directory(MAGS),
     conda:
         "__environment__.yml"
     log:
-        "results/mags.log"
+        "results/mags.log",
     shell:
         """
         mkdir --parents {output} 2> {log}
-        
+
         for file in {input}/*.fa.gz ; do
             gzip \
                 --decompress \

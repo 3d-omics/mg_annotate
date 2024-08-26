@@ -37,7 +37,7 @@ jobs:
       - name: Clean conda cache
         run: conda clean --all --yes
 
-      - name: Test workflow 
+      - name: Test workflow
         uses: snakemake/snakemake-github-action@v1
         with:
           directory: .

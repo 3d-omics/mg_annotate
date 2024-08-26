@@ -2,7 +2,7 @@ rule dram__annotate__:
     """Annotate dereplicate genomes with DRAM"""
     input:
         mags=MAGS,
-        gtdbtk_summary=RESULTS/ "gtdbtk.summary.tsv",
+        gtdbtk_summary=RESULTS / "gtdbtk.summary.tsv",
         dram_db=features["databases"]["dram"],
     output:
         annotation=RESULTS / "dram.annotations.tsv.gz",
@@ -62,7 +62,7 @@ rule dram__annotate__:
         ) 2>> {log} 1>&2
 
         for file in annotations trnas rrnas ; do
-            
+
             ( csvstack \
                 --tabs \
                 {params.tmp_dir}/*/$file.tsv \
@@ -70,7 +70,7 @@ rule dram__annotate__:
                 --out-tabs \
             > {params.out_dir}/dram.$file.tsv \
             ) 2>> {log}
-        
+
         done
 
         bgzip \
@@ -150,13 +150,13 @@ rule dram__distill__:
             {params.outdir_tmp}/metabolism_summary.xlsx \
             {params.outdir}/dram.metabolism_summary.xlsx \
         2>> {log} 1>&2
-        
+
         mv \
             --verbose \
             {params.outdir_tmp}/product.html \
             {params.outdir}/dram.product.html \
         2>> {log} 1>&2
-        
+
         mv \
             {params.outdir_tmp}/product.tsv \
             {params.outdir}/dram.product.tsv \

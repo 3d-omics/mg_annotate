@@ -50,7 +50,7 @@ rule gtdbtk:
         2>> {log}.{resources.attempt} 1>&2
 
         if [[ -f {params.ar53} ]] ; then
-            
+
             ( csvstack \
                 --tabs \
                 {params.bac120} \
@@ -59,7 +59,7 @@ rule gtdbtk:
                 --out-tabs \
             > {output.summary} \
             ) 2>> {log}.{resources.attempt}
-        
+
             cp \
                 --verbose \
                 {params.ar_tree} \
@@ -67,13 +67,13 @@ rule gtdbtk:
             2>> {log} 1>&2
 
         else
-        
+
             cp \
                 --verbose \
                 {params.bac120} \
                 {output.summary} \
             2>> {log}.{resources.attempt}
-        
+
             touch {output.ar_tree} 2>> {log} 1>&2
 
         fi

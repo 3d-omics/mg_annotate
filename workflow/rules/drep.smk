@@ -13,10 +13,10 @@ rule drep__:
     conda:
         "__environment__.yml"
     params:
-        out_dir= lambda w: f"{DREP}/drep.{w.secondary_ani}",
-        secondary_ani = lambda w: w.secondary_ani,
-        minimum_completeness = params["drep"]["minimum_completeness"],
-        maximum_contamination = params["drep"]["maximum_contamination"],
+        out_dir=lambda w: f"{DREP}/drep.{w.secondary_ani}",
+        secondary_ani=lambda w: w.secondary_ani,
+        minimum_completeness=params["drep"]["minimum_completeness"],
+        maximum_contamination=params["drep"]["maximum_contamination"],
     resources:
         attempt=get_attempt,
     # retries: 5
@@ -81,7 +81,4 @@ rule drep__:
 
 rule drep:
     input:
-        [
-            RESULTS / f"drep.{secondary_ani}.fa.gz"
-            for secondary_ani in SECONDARY_ANIS
-        ]
+        [RESULTS / f"drep.{secondary_ani}.fa.gz" for secondary_ani in SECONDARY_ANIS],
