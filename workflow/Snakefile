@@ -26,6 +26,6 @@ rule all:
     """Run the entire pipeline"""
     input:
         rules.checkm2.input,
-        # rules.drep.input,
-        # rules.gtdbtk.input,
-        # rules.dram.input,
+        rules.drep.input,
+        rules.gtdbtk.input,
+        rules.dram.input,
