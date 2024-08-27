@@ -49,15 +49,6 @@ rule drep__:
         > {output.fasta} \
         ) 2>> {log}.{resources.attempt} 1>&2
 
-        cat \
-            {params.out_dir}/dereplicated_genomes/*.fa \
-        | bgzip \
-            --compress-level 9 \
-            --threads {threads} \
-        > {output.fasta} \
-        2>> {log}.{resources.attempt} 1>&2
-
-
         tar \
             --create \
             --directory {params.out_dir} \
@@ -68,7 +59,10 @@ rule drep__:
             ${{folder}} \
         2>> {log}.{resources.attempt} 1>&2
 
-        cp --force {log}.{resources.attempt} {log}
+        mv \
+            --force \
+            {log}.{resources.attempt} \
+            {log}
         """
 
 
