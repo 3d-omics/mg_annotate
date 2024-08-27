@@ -10,7 +10,7 @@ rule checkm2:
     conda:
         "checkm2.yml"
     params:
-        out_dir=RESULTS,
+        out_dir=CHECKM2,
     shell:
         """
         rm \
@@ -34,4 +34,11 @@ rule checkm2:
             {params.out_dir}/quality_report.tsv \
             {output} \
         2>> {log} 1>&2
+
+        rm \
+	    --force \
+            --recursive \
+            --verbose \
+            {params.out_dir} \
+        2> {log} 1>&2
         """
