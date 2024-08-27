@@ -36,7 +36,7 @@ rule checkm2:
         2>> {log} 1>&2
 
         rm \
-	    --force \
+            --force \
             --recursive \
             --verbose \
             {params.out_dir} \
