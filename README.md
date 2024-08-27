@@ -19,7 +19,7 @@ A Snakemake workflow to annotate mags
     cd mg_annotate
     ```
 
-3. Test your installation by running the test data. It will download all the necesary software through conda / mamba. It should take less than 5 minutes.
+3. Test your installation.
     ```bash
     snakemake -np
     ```
@@ -38,13 +38,19 @@ A Snakemake workflow to annotate mags
       gtdbtk: resources/databases/gtdbtk/release214
     ```
 
-    3. Edit `config/params.yml` with execution parameters. The defaults are reasonable.
+    2. Edit `config/params.yml` with execution parameters. The defaults are reasonable.
 
 
 
 5. Run the pipeline
-     ```
-     snakemake --use-conda --jobs 8 all
+     ```bash
+     snakemake \
+        --use-conda \
+        --profile profile/default \
+        --cores 24 \
+        --jobs 8 \
+        --keep-going \
+        --rerun-incomplete
      ```
 
 
@@ -54,7 +60,7 @@ A Snakemake workflow to annotate mags
 
 
 ## Features
-- Dereplication with `dRep`. Multiple secondary ANIs can be providede
+- Dereplication with `dRep`. Multiple secondary ANIs can be provided.
 - Annotation with `checkm2`, `gtdbtk` and `dram`
 
 
