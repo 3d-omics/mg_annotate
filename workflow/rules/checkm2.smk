@@ -34,11 +34,4 @@ rule checkm2:
             {params.out_dir}/quality_report.tsv \
             {output} \
         2>> {log} 1>&2
-
-        rm \
-            --force \
-            --recursive \
-            --verbose \
-            {params.out_dir} \
-        2>> {log} 1>&2
         """
