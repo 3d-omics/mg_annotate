@@ -32,13 +32,6 @@ rule drep__:
             {params.out_dir}/log \
         2>> {log}.{resources.attempt} 1>&2
 
-        pigz \
-            --decompress \
-            --keep \
-            --force \
-            {input.genomes}/*.fa \
-        2>> {log}.{resources.attempt} 1>&2
-
         dRep dereplicate \
             {params.out_dir} \
             --S_ani {params.secondary_ani} \
