@@ -1,7 +1,7 @@
 [![GitHub actions status](https://github.com/3d-omics/mg_annotate/workflows/Tests/badge.svg)](https://github.com/3d-omics/mg_annotate/actions)
 
 
-# Snakemake workflow: `mg_anntate`
+# Snakemake workflow: `mg_annotate`
 
 A Snakemake workflow to annotate mags
 

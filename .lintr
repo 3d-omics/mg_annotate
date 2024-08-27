@@ -1,3 +1,0 @@
-exclusions: list(
-    "workflow/scripts/MAGScoT/MAGScoT.R"
-  )
