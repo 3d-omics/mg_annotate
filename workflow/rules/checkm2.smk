@@ -10,7 +10,7 @@ rule checkm2:
     conda:
         "checkm2.yml"
     params:
-        out_dir=CHECKM,
+        out_dir=RESULTS,
     shell:
         """
         rm \
