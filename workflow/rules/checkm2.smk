@@ -10,7 +10,7 @@ rule checkm2:
     conda:
         "checkm2.yml"
     params:
-        out_dir=CHECKM2 / "predict",
+        out_dir=CHECKM,
     shell:
         """
         rm \
@@ -30,6 +30,7 @@ rule checkm2:
         2>> {log} 1>&2
 
         mv \
+            --verbose \
             {params.out_dir}/quality_report.tsv \
             {output} \
         2>> {log} 1>&2
