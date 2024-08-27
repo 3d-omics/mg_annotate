@@ -36,7 +36,7 @@ rule drep__:
             --decompress \
             --keep \
             --force \
-            {input.genomes}/*.fa.gz \
+            {input.genomes}/*.fa \
         2>> {log}.{resources.attempt} 1>&2
 
         dRep dereplicate \
