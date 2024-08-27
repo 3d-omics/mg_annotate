@@ -11,11 +11,15 @@ rule mags:
         """
         mkdir --parents {output} 2> {log}
 
-        for file in {input}/*.fa.gz ; do
-            gzip \
-                --decompress \
-                --stdout \
-                $file \
-            > {output}/$(basename $file .gz)
-        done 2>> {log}
+        rsync \
+            -Pravt \
+            {input}/ \
+            {output} \
+        2> {log} 1>&2
+
+        find \
+            {output} \
+            -name "*.fa.gz" \
+            -exec gzip -d {{}} \\; \
+        2>> {log} 1>&2
         """
