@@ -2,7 +2,6 @@ rule dram__annotate__:
     """Annotate dereplicate genomes with DRAM"""
     input:
         mags=MAGS,
-        # gtdbtk_summary=RESULTS / "gtdbtk.summary.tsv",
         dram_db=features["databases"]["dram"],
     output:
         annotation=RESULTS / "dram.annotations.tsv.gz",
@@ -58,7 +57,6 @@ rule dram__annotate__:
                 --input_fasta {{}} \
                 --output_dir {params.tmp_dir}/{{/.}} \
                 --threads 1 \
-                `#--gtdb_taxonomy {input.gtdbtk_summary}` \
         ) 2>> {log} 1>&2
 
         for file in annotations trnas rrnas ; do
