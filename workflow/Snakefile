@@ -27,7 +27,7 @@ include: "rules/dram.smk"
 rule all:
     """Run the entire pipeline"""
     input:
-        rules.checkm2.input,
+        rules.checkm2.output,
         rules.drep.input,
         rules.gtdbtk.input,
         rules.dram.input,
