@@ -29,5 +29,5 @@ rule all:
     input:
         rules.checkm2.output,
         rules.drep.input,
-        rules.gtdbtk.input,
+        rules.gtdbtk.output,
         rules.dram.input,
