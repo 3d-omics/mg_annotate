@@ -34,11 +34,11 @@ rule drep__:
 
         dRep dereplicate \
             {params.out_dir} \
-            --S_ani {params.secondary_ani} \
-            --completeness {params.minimum_completeness} \
+            --S_ani         {params.secondary_ani} \
+            --completeness  {params.minimum_completeness} \
             --contamination {params.maximum_contamination} \
-            --genomes {input.genomes}/*.fa \
-            --processors {threads} \
+            --genomes       {input.genomes}/*.fa \
+            --processors    {threads} \
         2>> {log}.{resources.attempt} 1>&2
 
         ( cat \
