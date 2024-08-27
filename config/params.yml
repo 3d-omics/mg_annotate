@@ -1,15 +1,8 @@
 # Execution parameters
 ---
-checkm2:
-  extra: ""
-
 dram:
   annotate:
     min_contig_size: 1500
-  distill:
-
-gtdbtk:
-  extra: ""
 
 drep:
   secondary_anis:

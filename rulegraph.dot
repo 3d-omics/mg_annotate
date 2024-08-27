@@ -1,0 +1,22 @@
+digraph snakemake_dag {
+    graph[bgcolor=white, margin=0];
+    node[shape=box, style=rounded, fontname=sans,                 fontsize=10, penwidth=2];
+    edge[penwidth=2, color=grey];
+	mags [label = "mags", color = "0.52 0.6 0.85", style="rounded"];
+	checkm2 [label = "checkm2", color = "0.00 0.6 0.85", style="rounded"];
+	drep1 [label = "drep\nS_ani=0.95", color = "0.59 0.6 0.85", style="rounded"];
+	drep2 [label = "drep\nS_ani=0.98", color = "0.59 0.6 0.85", style="rounded"];
+	drep3 [label = "drep\nS_ani=0.99", color = "0.59 0.6 0.85", style="rounded"];
+	annotate [label = "dram\nannotate", color = "0.15 0.6 0.85", style="rounded"];
+	distill [label = "dram\ndistill", color = "0.30 0.6 0.85", style="rounded"];
+	gtdbtk [label = "gtdbtk", color = "0.22 0.6 0.85", style="rounded"];
+
+	mags -> checkm2
+	mags -> drep1
+	mags -> drep2
+	mags -> drep3
+	mags -> gtdbtk
+	gtdbtk -> annotate
+	annotate -> distill
+
+}
