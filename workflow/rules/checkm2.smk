@@ -22,7 +22,7 @@ rule checkm2:
 
         checkm2 predict \
             --database_path {input.db}/uniref100.KO.1.dmnd \
-            --extension .fa.gz \
+            --extension .fa \
             --input {input.mags} \
             --output-directory {params.out_dir} \
             --remove_intermediates \
