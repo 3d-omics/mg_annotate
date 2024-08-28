@@ -1,7 +1,34 @@
+rule drep__quality_report__:
+    input:
+        RESULTS / "checkm2.quality_report.tsv",
+    output:
+        temp(RESULTS / "drep.quality_report.tsv"),
+    log:
+        RESULTS / "drep.quality_report.log",
+    conda:
+        "__environment__.yml"
+    shell:
+        """
+        echo \
+            -E "genome,completeness,contamination" \
+        > {output} \
+        2> {log}
+
+        ( tail -n+1 {input} \
+        | cut -f 1-3 \
+        | awk \
+            '{{print $1 ".fa," $2 "," $3}}' \
+        ) \
+        >> {output} \
+        2>> {log}
+        """
+
+
 rule drep__dereplicate__:
     """Dereplicate all the bins using dRep."""
     input:
         genomes=MAGS,
+        quality_report=RESULTS / "drep.quality_report.tsv",
     output:
         work_dir=temp(directory(RESULTS / "drep.{secondary_ani}.dir")),
     log:
@@ -32,6 +59,7 @@ rule drep__dereplicate__:
             --contamination {params.maximum_contamination} \
             --genomes       {input.genomes}/*.fa \
             --processors    {threads} \
+            --genomeInfo    {input.quality_report} \
         2>> {log} 1>&2
         """
 
