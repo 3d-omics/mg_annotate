@@ -13,20 +13,18 @@ rule drep__dereplicate__:
         secondary_ani=lambda w: w.secondary_ani,
         minimum_completeness=params["drep"]["minimum_completeness"],
         maximum_contamination=params["drep"]["maximum_contamination"],
-    resources:
-        attempt=get_attempt,
-    # retries: 5
     shell:
         """
         rm \
             --recursive \
             --force \
+            --verbose \
             {params.out_dir}/data_tables \
             {params.out_dir}/data \
             {params.out_dir}/dereplicated_genomes \
             {params.out_dir}/figures \
             {params.out_dir}/log \
-        2> {log}.{resources.attempt} 1>&2
+        2> {log} 1>&2
 
         dRep dereplicate \
             {params.out_dir} \
@@ -35,9 +33,7 @@ rule drep__dereplicate__:
             --contamination {params.maximum_contamination} \
             --genomes       {input.genomes}/*.fa \
             --processors    {threads} \
-        2>> {log}.{resources.attempt} 1>&2
-
-        mv {log}.{resources.attempt} {log}
+        2>> {log} 1>&2
         """
 
 
