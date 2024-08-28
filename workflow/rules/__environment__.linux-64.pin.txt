@@ -163,6 +163,7 @@ https://conda.anaconda.org/conda-forge/noarch/pexpect-4.9.0-pyhd8ed1ab_0.conda#6
 https://conda.anaconda.org/conda-forge/linux-64/pillow-8.2.0-py38ha0e1e83_1.tar.bz2#46a555b3ce021469f7f62d72fe6ebb4b
 https://conda.anaconda.org/conda-forge/noarch/pip-24.2-pyhd8ed1ab_0.conda#6721aef6bfe5937abe70181545dd2c51
 https://conda.anaconda.org/conda-forge/noarch/prompt-toolkit-3.0.47-pyha770c72_0.conda#1247c861065d227781231950e14fe817
+https://conda.anaconda.org/bioconda/linux-64/pysam-0.22.1-py38h2d19e03_2.tar.bz2#609d9dae828f74babdf824323b090940
 https://conda.anaconda.org/conda-forge/noarch/pytest-8.3.2-pyhd8ed1ab_0.conda#e010a224b90f1f623a917c35addbb924
 https://conda.anaconda.org/conda-forge/noarch/python-dateutil-2.9.0-pyhd8ed1ab_0.conda#2cf4264fffb9e6eff6031c5b6884d61c
 https://conda.anaconda.org/conda-forge/noarch/python-slugify-8.0.4-pyhd8ed1ab_0.conda#4b11845622b3c3178c0e989235b53975
@@ -206,6 +207,7 @@ https://conda.anaconda.org/bioconda/noarch/gtdbtk-2.3.2-pyhdfd78af_0.tar.bz2#775
 https://conda.anaconda.org/conda-forge/noarch/pooch-1.8.2-pyhd8ed1ab_0.conda#8dab97d8a9616e07d779782995710aed
 https://conda.anaconda.org/conda-forge/noarch/csvkit-1.3.0-pyhd8ed1ab_0.conda#b37b768e3975a4b62f31450f180ea8e6
 https://conda.anaconda.org/conda-forge/linux-64/scipy-1.10.1-py38h59b608b_3.conda#2f2a57462fcfbc67dfdbb0de6f7484c2
+https://conda.anaconda.org/bioconda/noarch/checkm-genome-1.2.2-pyhdfd78af_1.tar.bz2#3756d3e28ca79f82604d4af6c4b321d4
 https://conda.anaconda.org/conda-forge/linux-64/scikit-bio-0.5.8-py38h7e4f40d_1.conda#83c4fff6638d653d43f32f065a4c0e5a
 https://conda.anaconda.org/conda-forge/linux-64/scikit-learn-1.3.2-py38ha25d942_2.conda#1f09a56de42f4661aa45922f88f8beb8
 https://conda.anaconda.org/conda-forge/noarch/seaborn-base-0.13.2-pyhd8ed1ab_2.conda#b713b116feaf98acdba93ad4d7f90ca1
