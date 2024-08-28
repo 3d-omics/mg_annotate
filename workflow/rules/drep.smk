@@ -9,7 +9,6 @@ rule drep__dereplicate__:
     conda:
         "__environment__.yml"
     params:
-        out_dir=lambda w: f"{DREP}/drep.{w.secondary_ani}",
         secondary_ani=lambda w: w.secondary_ani,
         minimum_completeness=params["drep"]["minimum_completeness"],
         maximum_contamination=params["drep"]["maximum_contamination"],
@@ -19,18 +18,18 @@ rule drep__dereplicate__:
             --recursive \
             --force \
             --verbose \
-            {params.out_dir}/data_tables \
-            {params.out_dir}/data \
-            {params.out_dir}/dereplicated_genomes \
-            {params.out_dir}/figures \
-            {params.out_dir}/log \
+            {output.out_dir}/data_tables \
+            {output.out_dir}/data \
+            {output.out_dir}/dereplicated_genomes \
+            {output.out_dir}/figures \
+            {output.out_dir}/log \
         2> {log} 1>&2
 
         dRep dereplicate \
-            {params.out_dir} \
-            --S_ani         {params.secondary_ani} \
-            --completeness  {params.minimum_completeness} \
-            --contamination {params.maximum_contamination} \
+            {output.out_dir} \
+            --S_ani         {output.secondary_ani} \
+            --completeness  {output.minimum_completeness} \
+            --contamination {output.maximum_contamination} \
             --genomes       {input.genomes}/*.fa \
             --processors    {threads} \
         2>> {log} 1>&2
