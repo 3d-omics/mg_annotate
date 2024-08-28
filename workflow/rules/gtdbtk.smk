@@ -4,20 +4,11 @@ rule gtdbtk__classify_wf__:
         mags=MAGS,
         database=features["databases"]["gtdbtk"],
     output:
-        identify=temp(directory(GTDBTK / "identify")),
-        classify=temp(directory(GTDBTK / "classify")),
-        align=temp(directory(GTDBTK / "align")),
-        json=GTDBTK / "gtdbtk.json",
-        bac120=GTDBTK / "bac120.summary.tsv",
-        bac_tree=GTDBTK / "classify" / "gtdbtk.backbone.bac120.classify.tree",
-        ar53=touch(GTDBTK / "ar53.summary.tsv"),
-        ar_tree=touch(GTDBTK / "classify" / "gtdbtk.ar53.classify.tree"),
+        work_dir=GTDBTK,
     log:
         RESULTS / "gtdbtk.log",
     conda:
         "__environment__.yml"
-    params:
-        out_dir=GTDBTK,
     shell:
         """
         export GTDBTK_DATA_PATH="{input.database}"
@@ -25,7 +16,7 @@ rule gtdbtk__classify_wf__:
         gtdbtk classify_wf \
             --genome_dir {input.mags} \
             --extension fa \
-            --out_dir {params.out_dir} \
+            --out_dir {output.work_dir} \
             --cpus {threads} \
             --skip_ani_screen \
         2> {log} 1>&2
@@ -34,10 +25,7 @@ rule gtdbtk__classify_wf__:
 
 rule gtdbtk__join_bac_and_ar__:
     input:
-        bac_summary=GTDBTK / "bac120.summary.tsv",
-        ar_summary=GTDBTK / "ar53.summary.tsv",
-        bac_tree=GTDBTK / "classify" / "gtdbtk.backbone.bac120.classify.tree",
-        ar_tree=GTDBTK / "classify" / "gtdbtk.ar53.classify.tree",
+        work_dir=GTDBTK,
     output:
         summary=RESULTS / "gtdbtk.summary.tsv",
         bac_tree=RESULTS / "gtdbtk.backbone.bac120.classify.tree",
@@ -48,38 +36,37 @@ rule gtdbtk__join_bac_and_ar__:
         "__environment__.yml"
     shell:
         """
-        if [[ -s {input.ar_summary} ]] ; then
+        if [[ -f {input.work_dir}/gtdbtk.ar122.summary.tsv ]] ; then
 
-            ( csvstack \
+            csvstack \
                 --tabs \
-                {input.bac_summary} \
-                {input.ar_summary} \
+                {input.work_dir}/gtdbtk.bac120.summary.tsv \
+                {input.work_dir}/gtdbtk.ar53.summary.tsv \
             | csvformat \
                 --out-tabs \
             > {output.summary} \
-            ) 2> {log}
+            2> {log}
 
             cp \
                 --verbose \
-                {input.ar_tree} \
+                {input.work_dir}/classify/gtdbtk.ar53.classify.tree \
                 {output.ar_tree} \
-            2>> {log} 1>&2
+            2>> {log}
 
         else
 
             cp \
                 --verbose \
-                {input.bac_summary} \
+                {input.work_dir}/gtdbtk.bac120.summary.tsv \
                 {output.summary} \
-            2> {log} 1>&2
 
         fi
 
         cp \
             --verbose \
-            {input.bac_tree} \
+            {input.work_dir}/classify/gtdbtk.backbone.bac120.classify.tree \
             {output.bac_tree} \
-        2>> {log}
+        2>> {log} 1>&2
         """
 
 
