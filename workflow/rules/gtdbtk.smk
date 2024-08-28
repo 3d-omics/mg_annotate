@@ -16,10 +16,10 @@ rule gtdbtk:
         "__environment__.yml"
     params:
         out_dir=RESULTS,
-        ar53=GTDBTK / "gtdbtk.ar53.summary.tsv",
-        bac120=GTDBTK / "gtdbtk.bac120.summary.tsv",
-        ar_tree=GTDBTK / "classify" / "gtdbtk.ar53.tree",
-        bac_tree=GTDBTK / "classify" / "gtdbtk.backbone.bac120.classify.tree",
+        ar53=RESULTS / "gtdbtk.ar53.summary.tsv",
+        bac120=RESULTS / "gtdbtk.bac120.summary.tsv",
+        ar_tree=RESULTS / "classify" / "gtdbtk.ar53.tree",
+        bac_tree=RESULTS / "classify" / "gtdbtk.backbone.bac120.classify.tree",
     resources:
         attempt=get_attempt,
     retries: 5
