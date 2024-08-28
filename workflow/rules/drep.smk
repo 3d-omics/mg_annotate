@@ -4,9 +4,6 @@ rule drep__dereplicate__:
         genomes=MAGS,
     output:
         out_dir=temp(directory(DREP / "{secondary_ani}")),
-        # dereplicated_genomes=directory(DREP / secondary_ani / "dereplicated_genomes"),
-        # data=DREP / secondary_ani / "data.tar.gz",
-        # data_tables=DREP / secondary_ani / "data_tables.tar.gz",
     log:
         RESULTS / "drep.{secondary_ani}.log",
     conda:
