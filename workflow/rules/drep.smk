@@ -99,7 +99,6 @@ rule drep__tarball__:
         tar \
             --create \
             --file {output.tarball} \
-            --remove-files \
             --use-compress-program="pigz --processes {threads}" \
             --verbose \
             {input.work_dir} \
