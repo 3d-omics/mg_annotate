@@ -9,7 +9,9 @@ default-resources:
 
 
 set-threads:
-    drep__: 24
+    drep__dereplicate__: 24
+    drep__get_fasta__: 24
+    drep__tarball__: 24
     checkm2: 24
     dram__annotate__: 24
     gtdbtk__classify_wf__: 24
@@ -17,9 +19,11 @@ set-threads:
 
 
 set-resources:
-    drep__:
+    drep__dereplicate__:
         mem_mb: 64G
         runtime: 7d
+    drep__tarball__:
+        runtime: 6h
     checkm2:
         mem_mb: 16G
     dram__annotate__:
@@ -29,7 +33,7 @@ set-resources:
         mem_mb: 16G
         runtime: 1d
     gtdbtk__classify_wf__:
-        mem_mb: 64 * 1024 * 2 ** (attempt - 1)
+        mem_mb: 128 * 1024 * 2 ** (attempt - 1)
         runtime: 1d
     quast:
         mem_mb: 8G
