@@ -41,7 +41,7 @@ rule gtdbtk__join_bac_and_ar__:
     output:
         summary=RESULTS / "gtdbtk.summary.tsv",
         bac_tree=RESULTS / "gtdbtk.backbone.bac120.classify.tree",
-        ar_tree=RESULTS / "gtdbtk.ar53.classify.tree",
+        ar_tree=touch(RESULTS / "gtdbtk.ar53.classify.tree"),
     log:
         GTDBTK / "gtdbtk.join.log",
     conda:
@@ -73,8 +73,6 @@ rule gtdbtk__join_bac_and_ar__:
                 {output.summary} \
             2> {log} 1>&2
 
-            touch {output.ar_tree} 2>> {log} 1>&2
-
         fi
 
         cp \
@@ -82,7 +80,7 @@ rule gtdbtk__join_bac_and_ar__:
             {input.bac_tree} \
             {output.bac_tree} \
         2>> {log}
-    """
+        """
 
 
 rule gtdbtk:
