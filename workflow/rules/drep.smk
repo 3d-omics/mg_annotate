@@ -3,7 +3,7 @@ rule drep__dereplicate__:
     input:
         genomes=MAGS,
     output:
-        out_dir=temp(directory(RESULTS / "drep.{secondary_ani}")),
+        out_dir=temp(directory(RESULTS / "drep.{secondary_ani}.dir")),
     log:
         RESULTS / "drep.{secondary_ani}.log",
     conda:
@@ -39,7 +39,7 @@ rule drep__dereplicate__:
 
 rule drep__get_fasta__:
     input:
-        out_dir=RESULTS / "drep.{secondary_ani}",
+        out_dir=RESULTS / "drep.{secondary_ani}.dir",
     output:
         fasta=RESULTS / "drep.{secondary_ani}.fa.gz",
     log:
@@ -60,8 +60,7 @@ rule drep__get_fasta__:
 
 rule drep__tarball__:
     input:
-        out_dir=RESULTS / "drep.{secondary_ani}",
-        fasta=RESULTS / "drep.{secondary_ani}.fa.gz",
+        out_dir=RESULTS / "drep.{secondary_ani}.dir",
     output:
         tarball=RESULTS / "drep.{secondary_ani}.tar.gz",
     log:
