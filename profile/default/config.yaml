@@ -14,8 +14,8 @@ set-threads:
     drep__tarball__: 24
     checkm2: 24
     dram__annotate__: 24
+    dram__annotate_archive__: 24
     gtdbtk__classify_wf__: 24
-    quast__: 4
 
 
 set-resources:
@@ -35,5 +35,3 @@ set-resources:
     gtdbtk__classify_wf__:
         mem_mb: 128G
         runtime: 6h
-    quast:
-        mem_mb: 8G

@@ -1,13 +1,10 @@
 rule dram__annotate__:
-    """Annotate dereplicate genomes with DRAM"""
+    """Annotate dereplicate genomes with DRAM in parallel"""
     input:
         mags=MAGS,
         dram_db=features["databases"]["dram"],
     output:
-        annotation=RESULTS / "dram.annotations.tsv.gz",
-        trnas=RESULTS / "dram.trnas.tsv",
-        rrnas=RESULTS / "dram.rrnas.tsv",
-        tarball=RESULTS / "annotate.tar.gz",
+        out_dir=temp(directory(RESULTS / "annotate")),
     log:
         RESULTS / "dram.annotate.log",
     conda:
@@ -58,12 +55,30 @@ rule dram__annotate__:
                 --output_dir {params.tmp_dir}/{{/.}} \
                 --threads 1 \
         ) 2>> {log} 1>&2
+        """
 
+
+rule dram__annotate_archive__:
+    input:
+        out_dir=RESULTS / "annotate",
+    output:
+        annotation=RESULTS / "dram.annotations.tsv.gz",
+        trnas=RESULTS / "dram.trnas.tsv",
+        rrnas=RESULTS / "dram.rrnas.tsv",
+        tarball=RESULTS / "annotate.tar.gz",
+    log:
+        RESULTS / "dram.archive.log",
+    conda:
+        "__environment__.yml"
+    params:
+        out_dir=RESULTS,
+    shell:
+        """
         for file in annotations trnas rrnas ; do
 
             ( csvstack \
                 --tabs \
-                {params.tmp_dir}/*/$file.tsv \
+                {input.out_dir}/*/$file.tsv \
             | csvformat \
                 --out-tabs \
             > {params.out_dir}/dram.$file.tsv \
@@ -137,33 +152,15 @@ rule dram__distill__:
             --output_dir {params.outdir_tmp} \
         2> {log} 1>&2
 
-        mv \
-            --verbose \
-            {params.outdir_tmp}/genome_stats.tsv \
-            {params.outdir}/dram.genome_stats.tsv \
-        2>> {log} 1>&2
+        for file in genome_stats.tsv metabolism_summary.xlsx product.html product.tsv ; do
 
-        mv \
-            --verbose \
-            {params.outdir_tmp}/metabolism_summary.xlsx \
-            {params.outdir}/dram.metabolism_summary.xlsx \
-        2>> {log} 1>&2
+            mv \
+                --verbose \
+                {params.outdir_tmp}/$file \
+                {params.outdir}/dram.$file \
+            2>> {log} 1>&2
 
-        mv \
-            --verbose \
-            {params.outdir_tmp}/product.html \
-            {params.outdir}/dram.product.html \
-        2>> {log} 1>&2
-
-        mv \
-            {params.outdir_tmp}/product.tsv \
-            {params.outdir}/dram.product.tsv \
-        2>> {log} 1>&2
-
-        rmdir \
-            --verbose \
-            {params.outdir_tmp} \
-        2>> {log} 1>&2
+        done
         """
 
 
