@@ -27,9 +27,9 @@ rule drep__dereplicate__:
 
         dRep dereplicate \
             {output.out_dir} \
-            --S_ani         {output.secondary_ani} \
-            --completeness  {output.minimum_completeness} \
-            --contamination {output.maximum_contamination} \
+            --S_ani         {params.secondary_ani} \
+            --completeness  {params.minimum_completeness} \
+            --contamination {params.maximum_contamination} \
             --genomes       {input.genomes}/*.fa \
             --processors    {threads} \
         2>> {log} 1>&2
