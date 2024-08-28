@@ -1,10 +1,9 @@
-rule drep__:
+rule drep__dereplicate__:
     """Dereplicate all the bins using dRep."""
     input:
         genomes=MAGS,
     output:
-        fasta=RESULTS / "drep.{secondary_ani}.fa.gz",
-        tarball=RESULTS / "drep.{secondary_ani}.tar.gz",
+        out_dir=temp(directory(DREP / "{secondary_ani}")),
         # dereplicated_genomes=directory(DREP / secondary_ani / "dereplicated_genomes"),
         # data=DREP / secondary_ani / "data.tar.gz",
         # data_tables=DREP / secondary_ani / "data_tables.tar.gz",
@@ -30,7 +29,7 @@ rule drep__:
             {params.out_dir}/dereplicated_genomes \
             {params.out_dir}/figures \
             {params.out_dir}/log \
-        2>> {log}.{resources.attempt} 1>&2
+        2> {log}.{resources.attempt} 1>&2
 
         dRep dereplicate \
             {params.out_dir} \
@@ -41,31 +40,56 @@ rule drep__:
             --processors    {threads} \
         2>> {log}.{resources.attempt} 1>&2
 
+        mv {log}.{resources.attempt} {log}
+        """
+
+
+rule drep__get_fasta__:
+    input:
+        out_dir=DREP / "{secondary_ani}",
+    output:
+        fasta=RESULTS / "drep.{secondary_ani}.fa.gz",
+    log:
+        RESULTS / "drep.{secondary_ani}.fa.log",
+    conda:
+        "__environment__.yml"
+    shell:
+        """
         ( cat \
-            {params.out_dir}/dereplicated_genomes/*.fa \
+            {input.out_dir}/dereplicated_genomes/*.fa \
         | bgzip \
             --compress-level 9 \
             --threads {threads} \
         > {output.fasta} \
-        ) 2>> {log}.{resources.attempt} 1>&2
+        ) 2> {log}
+        """
 
+
+rule drep__tarball__:
+    input:
+        out_dir=DREP / "{secondary_ani}",
+        fasta=RESULTS / "drep.{secondary_ani}.fa.gz",
+    output:
+        tarball=RESULTS / "drep.{secondary_ani}.tar.gz",
+    log:
+        RESULTS / "drep.{secondary_ani}.tar.log",
+    conda:
+        "__environment__.yml"
+    shell:
+        """
         tar \
             --create \
-            --directory {params.out_dir} \
+            --directory {input.out_dir} \
             --file {output.tarball} \
             --remove-files \
             --use-compress-program="pigz --processes {threads}" \
             --verbose \
             ${{folder}} \
-        2>> {log}.{resources.attempt} 1>&2
-
-        mv \
-            --force \
-            {log}.{resources.attempt} \
-            {log}
+        2>> {log} 1>&2
         """
 
 
 rule drep:
     input:
+        [RESULTS / f"drep.{secondary_ani}.tar.gz" for secondary_ani in SECONDARY_ANIS],
         [RESULTS / f"drep.{secondary_ani}.fa.gz" for secondary_ani in SECONDARY_ANIS],
