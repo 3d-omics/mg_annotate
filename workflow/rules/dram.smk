@@ -47,9 +47,18 @@ rule dram__annotate__:
             --vogdb_loc                 {input.dram_db}/vog_latest_hmms.txt \
         2>> {log} 1>&2
 
-        ( ls -1S {input.mags} \
+        ( find \
+            results/mags \
+            -name "*.fa" \
+            -exec ls -al {{}} \\; \
+        | sort \
+            --numeric-sort \
+            --reverse \
+            --key 5 \
+        | awk \
+            '{print $9}' \
         | parallel \
-            --jobs $(( {threads} )) \
+            --jobs {threads} \
             DRAM.py annotate \
                 --input_fasta {{}} \
                 --output_dir {params.tmp_dir}/{{/.}} \
