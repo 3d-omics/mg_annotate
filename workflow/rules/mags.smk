@@ -23,3 +23,7 @@ rule mags:
             -exec gzip -d {{}} \\; \
         2>> {log} 1>&2
         """
+
+
+localrules:
+    mags,
