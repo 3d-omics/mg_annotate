@@ -4,7 +4,7 @@ rule dram__annotate__:
         mags=MAGS,
         dram_db=features["databases"]["dram"],
     output:
-        out_dir=temp(directory(RESULTS / "annotate")),
+        out_dir=temp(directory(RESULTS / "dram.annotate")),
     log:
         RESULTS / "dram.annotate.log",
     conda:
@@ -12,7 +12,7 @@ rule dram__annotate__:
     params:
         min_contig_size=params["dram"]["annotate"]["min_contig_size"],
         out_dir=RESULTS,
-        tmp_dir=RESULTS / "annotate",
+        tmp_dir=RESULTS / "dram.annotate",
         parallel_retries=5,
     shell:
         """
@@ -69,12 +69,12 @@ rule dram__annotate__:
 
 rule dram__annotate_archive__:
     input:
-        out_dir=RESULTS / "annotate",
+        out_dir=RESULTS / "dram.annotate",
     output:
         annotation=RESULTS / "dram.annotations.tsv.gz",
         trnas=RESULTS / "dram.trnas.tsv",
         rrnas=RESULTS / "dram.rrnas.tsv",
-        tarball=RESULTS / "annotate.tar.gz",
+        tarball=RESULTS / "dram.annotate.tar.gz",
     log:
         RESULTS / "dram.archive.log",
     conda:
@@ -103,11 +103,10 @@ rule dram__annotate_archive__:
 
         tar \
             --create \
-            --directory {params.out_dir} \
             --file {output.tarball} \
             --use-compress-program="pigz --processes {threads}" \
             --verbose \
-            annotate \
+            {input.out_dir} \
         2>> {log} 1>&2
         """
 
