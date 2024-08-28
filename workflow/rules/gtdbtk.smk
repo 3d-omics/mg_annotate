@@ -18,17 +18,8 @@ rule gtdbtk__classify_wf__:
         "__environment__.yml"
     params:
         out_dir=GTDBTK,
-    resources:
-        attempt=get_attempt,
-    retries: 5
     shell:
         """
-        find \
-            {params.out_dir} \
-            -delete \
-            -print \
-        2>> {log}.{resources.attempt} 1>&2
-
         export GTDBTK_DATA_PATH="{input.database}"
 
         gtdbtk classify_wf \
@@ -37,9 +28,7 @@ rule gtdbtk__classify_wf__:
             --out_dir {params.out_dir} \
             --cpus {threads} \
             --skip_ani_screen \
-        2>> {log}.{resources.attempt} 1>&2
-
-        mv {log}.{resources.attempt} {log}
+        2>> {log}
         """
 
 
