@@ -21,7 +21,7 @@ set-threads:
 set-resources:
     drep__dereplicate__:
         mem_mb: 64G
-        runtime: 7d
+        runtime: 6h
     drep__tarball__:
         runtime: 6h
     checkm2:
@@ -34,6 +34,6 @@ set-resources:
         runtime: 1d
     gtdbtk__classify_wf__:
         mem_mb: 128G
-        runtime: 1d
+        runtime: 6h
     quast:
         mem_mb: 8G
