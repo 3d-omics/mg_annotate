@@ -12,8 +12,8 @@ set-threads:
     drep__: 24
     checkm2: 24
     dram__annotate__: 24
-    gtdbtk: 24
-    prokaryotes__annotate__quast__: 4
+    gtdbtk__classify_wf__: 24
+    quast__: 4
 
 
 set-resources:
@@ -28,7 +28,7 @@ set-resources:
     dram__distill__:
         mem_mb: 16G
         runtime: 1d
-    gtdbtk:
+    gtdbtk__classify_wf__:
         mem_mb: 64 * 1024 * 2 ** (attempt - 1)
         runtime: 1d
     quast:

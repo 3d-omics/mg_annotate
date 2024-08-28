@@ -1,42 +1,32 @@
-rule gtdbtk:
+rule gtdbtk__classify_wf__:
     """Run GTDB-Tk over the dereplicated genomes."""
     input:
         mags=MAGS,
         database=features["databases"]["gtdbtk"],
     output:
-        summary=RESULTS / "gtdbtk.summary.tsv",
-        align=RESULTS / "gtdbtk.align.tar.gz",
-        classify=RESULTS / "gtdbtk.classify.tar.gz",
-        identify=RESULTS / "gtdbtk.identify.tar.gz",
-        bac_tree=RESULTS / "gtdbtk.backbone.bac120.classify.tree",
-        ar_tree=touch(RESULTS / "gtdbtk.ar53.tree"),
+        identify=temp(directory(GTDBTK / "identify")),
+        classify=temp(directory(GTDBTK / "classify")),
+        align=temp(directory(GTDBTK / "align")),
+        json=GTDBTK / "gtdbtk.json",
+        bac120=GTDBTK / "bac120.summary.tsv",
+        bac_tree=GTDBTK / "classify" / "gtdbtk.backbone.bac120.classify.tree",
+        ar53=touch(GTDBTK / "ar53.summary.tsv"),
+        ar_tree=touch(GTDBTK / "classify" / "gtdbtk.ar53.classify.tree"),
     log:
         RESULTS / "gtdbtk.log",
     conda:
         "__environment__.yml"
     params:
-        out_dir=RESULTS,
-        ar53=RESULTS / "gtdbtk.ar53.summary.tsv",
-        bac120=RESULTS / "gtdbtk.bac120.summary.tsv",
-        ar_tree=RESULTS / "classify" / "gtdbtk.ar53.tree",
-        bac_tree=RESULTS / "classify" / "gtdbtk.backbone.bac120.classify.tree",
+        out_dir=GTDBTK,
     resources:
         attempt=get_attempt,
     retries: 5
     shell:
         """
-        rm \
-            --recursive \
-            --force \
-            {params.out_dir}/gtdbtk.align \
-            {params.out_dir}/gtdbtk.classify \
-            {params.out_dir}/gtdbtk.identify \
-            {params.out_dir}/gtdbtk.log \
-            {params.out_dir}/gtdbtk.json \
-            {params.out_dir}/gtdbtk.summary.tsv \
-            {params.out_dir}/gtdbtk.warnings.log \
-            {params.ar53} \
-            {params.bac120} \
+        find \
+            {params.out_dir} \
+            -delete \
+            -print \
         2>> {log}.{resources.attempt} 1>&2
 
         export GTDBTK_DATA_PATH="{input.database}"
@@ -49,20 +39,40 @@ rule gtdbtk:
             --skip_ani_screen \
         2>> {log}.{resources.attempt} 1>&2
 
-        if [[ -f {params.ar53} ]] ; then
+        mv {log}.{resources.attempt} {log}
+        """
+
+
+rule gtdbtk__join_bac_and_ar__:
+    input:
+        bac_summary=GTDBTK / "bac120.summary.tsv",
+        ar_summary=GTDBTK / "ar53.summary.tsv",
+        bac_tree=GTDBTK / "classify" / "gtdbtk.backbone.bac120.classify.tree",
+        ar_tree=GTDBTK / "classify" / "gtdbtk.ar53.classify.tree",
+    output:
+        summary=RESULTS / "gtdbtk.summary.tsv",
+        bac_tree=RESULTS / "gtdbtk.backbone.bac120.classify.tree",
+        ar_tree=RESULTS / "gtdbtk.ar53.classify.tree",
+    log:
+        GTDBTK / "gtdbtk.join.log",
+    conda:
+        "__environment__.yml"
+    shell:
+        """
+        if [[ -s {input.ar_summary} ]] ; then
 
             ( csvstack \
                 --tabs \
-                {params.bac120} \
-                {params.ar53} \
+                {input.bac_summary} \
+                {input.ar_summary} \
             | csvformat \
                 --out-tabs \
             > {output.summary} \
-            ) 2>> {log}.{resources.attempt}
+            ) 2> {log}
 
             cp \
                 --verbose \
-                {params.ar_tree} \
+                {input.ar_tree} \
                 {output.ar_tree} \
             2>> {log} 1>&2
 
@@ -70,9 +80,9 @@ rule gtdbtk:
 
             cp \
                 --verbose \
-                {params.bac120} \
+                {input.bac_summary} \
                 {output.summary} \
-            2>> {log}.{resources.attempt}
+            2> {log} 1>&2
 
             touch {output.ar_tree} 2>> {log} 1>&2
 
@@ -80,23 +90,12 @@ rule gtdbtk:
 
         cp \
             --verbose \
-            {params.bac_tree} \
+            {input.bac_tree} \
             {output.bac_tree} \
         2>> {log}
+    """
 
-        for folder in align classify identify ; do
-            tar \
-                --create \
-                --directory {params.out_dir} \
-                --file {params.out_dir}/gtdbtk.${{folder}}.tar.gz \
-                --remove-files \
-                --use-compress-program="pigz --processes {threads}" \
-                --verbose \
-                ${{folder}} \
-            2>> {log}.{resources.attempt} 1>&2
-        done
 
-        mv \
-            {log}.{resources.attempt} \
-            {log}
-        """
+rule gtdbtk:
+    input:
+        rules.gtdbtk__join_bac_and_ar__.output,
