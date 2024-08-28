@@ -14,7 +14,7 @@ rule drep__quality_report__:
         > {output} \
         2> {log}
 
-        ( tail -n+1 {input} \
+        ( tail -n+2 {input} \
         | cut -f 1-3 \
         | awk \
             '{{print $1 ".fa," $2 "," $3}}' \
@@ -98,7 +98,6 @@ rule drep__tarball__:
         """
         tar \
             --create \
-            --directory {input.work_dir} \
             --file {output.tarball} \
             --remove-files \
             --use-compress-program="pigz --processes {threads}" \
@@ -112,3 +111,7 @@ rule drep:
     input:
         [RESULTS / f"drep.{secondary_ani}.tar.gz" for secondary_ani in SECONDARY_ANIS],
         [RESULTS / f"drep.{secondary_ani}.fa.gz" for secondary_ani in SECONDARY_ANIS],
+
+
+localrules:
+    drep__quality_report__,
