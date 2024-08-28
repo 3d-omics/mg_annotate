@@ -28,7 +28,7 @@ rule gtdbtk__classify_wf__:
             --out_dir {params.out_dir} \
             --cpus {threads} \
             --skip_ani_screen \
-        2>> {log}
+        2> {log} 1>&2
         """
 
 
