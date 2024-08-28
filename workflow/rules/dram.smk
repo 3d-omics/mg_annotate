@@ -105,7 +105,6 @@ rule dram__annotate_archive__:
             --create \
             --directory {params.out_dir} \
             --file {output.tarball} \
-            --remove-files \
             --use-compress-program="pigz --processes {threads}" \
             --verbose \
             annotate \
