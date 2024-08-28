@@ -19,7 +19,8 @@ rule dram__annotate__:
         rm \
             --recursive \
             --force \
-            --verbose {params.tmp_dir} \
+            --verbose \
+            {params.tmp_dir} \
         2>> {log} 1>&2
 
         mkdir \
@@ -52,9 +53,9 @@ rule dram__annotate__:
             -name "*.fa" \
             -exec ls -al {{}} \\; \
         | sort \
+            --key 5 \
             --numeric-sort \
             --reverse \
-            --key 5 \
         | awk \
             '{{print $9}}' \
         | parallel \
@@ -154,9 +155,9 @@ rule dram__distill__:
 
         DRAM.py distill \
             --input_file {input.annotations} \
-            --rrna_path {input.rrnas} \
-            --trna_path {input.trnas} \
             --output_dir {params.outdir_tmp} \
+            --rrna_path  {input.rrnas} \
+            --trna_path  {input.trnas} \
         2> {log} 1>&2
 
         for file in genome_stats.tsv metabolism_summary.xlsx product.html product.tsv ; do
