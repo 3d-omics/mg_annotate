@@ -12,11 +12,10 @@ digraph snakemake_dag {
 	gtdbtk [label = "gtdbtk", color = "0.22 0.6 0.85", style="rounded"];
 
 	mags -> checkm2
-	mags -> drep1
-	mags -> drep2
-	mags -> drep3
+	checkm2 -> drep1
+	checkm2 -> drep2
+	checkm2 -> drep3
 	mags -> gtdbtk
-	gtdbtk -> annotate
-	annotate -> distill
+	mags -> annotate -> distill
 
 }
