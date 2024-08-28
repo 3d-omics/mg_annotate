@@ -56,7 +56,7 @@ rule dram__annotate__:
             --reverse \
             --key 5 \
         | awk \
-            '{print $9}' \
+            '{{print $9}}' \
         | parallel \
             --jobs {threads} \
             DRAM.py annotate \
