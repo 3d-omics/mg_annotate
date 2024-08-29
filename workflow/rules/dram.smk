@@ -21,7 +21,7 @@ rule dram__annotate__:
             --force \
             --verbose \
             {params.tmp_dir} \
-        2>> {log} 1>&2
+        2> {log} 1>&2
 
         mkdir \
             --parents \
