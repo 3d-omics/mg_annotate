@@ -162,17 +162,7 @@ rule dram__distill__:
             --output_dir {params.outdir_tmp} \
             --rrna_path  {input.rrnas} \
             --trna_path  {input.trnas} \
-        2> {log} 1>&2
-
-        for file in genome_stats.tsv metabolism_summary.xlsx product.html product.tsv ; do
-
-            mv \
-                --verbose \
-                {params.outdir_tmp}/$file \
-                {params.outdir}/dram.$file \
-            2>> {log} 1>&2
-
-        done
+        2>> {log} 1>&2
         """
 
 
@@ -210,3 +200,7 @@ rule dram:
     """Run DRAM on dereplicated genomes."""
     input:
         rules.dram__distill_archive__.output,
+
+
+localrules:
+    dram__distill_archive__,
