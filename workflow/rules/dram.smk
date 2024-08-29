@@ -120,7 +120,7 @@ rule dram__distill__:
         rrnas=RESULTS / "dram.rrnas.tsv",
         dram_db=features["databases"]["dram"],
     output:
-        work_dir=temp(directory(DRAM / "distill")),
+        work_dir=temp(directory(RESULTS / "dram.distill")),
     log:
         RESULTS / "distill.log",
     conda:
@@ -168,7 +168,7 @@ rule dram__distill__:
 
 rule dram__distill_archive__:
     input:
-        work_dir=DRAM / "distill",
+        work_dir=RESULTS / "dram.distill",
     output:
         genome=RESULTS / "dram.genome_stats.tsv",
         metabolism=RESULTS / "dram.metabolism_summary.xlsx",
@@ -180,19 +180,17 @@ rule dram__distill_archive__:
         "__environment__.yml"
     params:
         out_dir=RESULTS,
+        dram_dir=DRAM,
     shell:
         """
-        rm -rf {log}
-
         for file in genome_stats.tsv metabolism_summary.xlsx product.html product.tsv ; do
 
             mv \
                 --verbose \
                 {input.work_dir}/$file \
                 {params.out_dir}/dram.$file \
-            2>> {log} 1>&2
 
-        done
+        done 2> {log} 1>&2
         """
 
 
