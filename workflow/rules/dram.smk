@@ -127,13 +127,6 @@ rule dram__distill__:
         "__environment__.yml"
     shell:
         """
-        rm \
-            --recursive \
-            --force \
-            --verbose \
-            {output.work_dir} \
-        2> {log} 1>&2
-
         DRAM-setup.py set_database_locations \
             --amg_database_loc          {input.dram_db}/amg_database.*.tsv \
             --dbcan_fam_activities_loc  {input.dram_db}/CAZyDB.*.fam-activities.txt \
