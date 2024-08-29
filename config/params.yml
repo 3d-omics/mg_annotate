@@ -6,7 +6,6 @@ dram:
 
 drep:
   secondary_anis:
-    - 0.90
     - 0.95
     - 0.98
     - 0.99
