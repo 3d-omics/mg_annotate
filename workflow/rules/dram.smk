@@ -120,10 +120,7 @@ rule dram__distill__:
         rrnas=RESULTS / "dram.rrnas.tsv",
         dram_db=features["databases"]["dram"],
     output:
-        genome=RESULTS / "dram.genome_stats.tsv",
-        metabolism=RESULTS / "dram.metabolism_summary.xlsx",
-        product_html=RESULTS / "dram.product.html",
-        product_tsv=RESULTS / "dram.product.tsv",
+        work_dir=temp(directory(DRAM / "distill")),
     log:
         DRAM / "distill.log",
     conda:
@@ -133,6 +130,13 @@ rule dram__distill__:
         outdir=DRAM,
     shell:
         """
+        rm \
+            --recursive \
+            --force \
+            --verbose \
+            {params.outdir_tmp} \
+        2> {log} 1>&2
+
         DRAM-setup.py set_database_locations \
             --amg_database_loc          {input.dram_db}/amg_database.*.tsv \
             --dbcan_fam_activities_loc  {input.dram_db}/CAZyDB.*.fam-activities.txt \
@@ -172,7 +176,37 @@ rule dram__distill__:
         """
 
 
+rule dram__distill_archive__:
+    input:
+        work_dir=DRAM / "distill",
+    output:
+        genome=RESULTS / "dram.genome_stats.tsv",
+        metabolism=RESULTS / "dram.metabolism_summary.xlsx",
+        product_html=RESULTS / "dram.product.html",
+        product_tsv=RESULTS / "dram.product.tsv",
+    log:
+        RESULTS / "dram.distill_archive.log",
+    conda:
+        "__environment__.yml"
+    params:
+        out_dir=RESULTS,
+    shell:
+        """
+        rm -rf {log}
+
+        for file in genome_stats.tsv metabolism_summary.xlsx product.html product.tsv ; do
+
+            mv \
+                --verbose \
+                {input.work_dir}/$file \
+                {params.out_dir}/dram.$file \
+            2>> {log}
+
+        done
+        """
+
+
 rule dram:
     """Run DRAM on dereplicated genomes."""
     input:
-        rules.dram__distill__.output,
+        rules.dram__distill_archive__.output,
