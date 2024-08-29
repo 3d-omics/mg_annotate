@@ -125,16 +125,13 @@ rule dram__distill__:
         RESULTS / "distill.log",
     conda:
         "__environment__.yml"
-    params:
-        outdir_tmp=DRAM / "distill",
-        outdir=DRAM,
     shell:
         """
         rm \
             --recursive \
             --force \
             --verbose \
-            {params.outdir_tmp} \
+            {output.work_dir} \
         2> {log} 1>&2
 
         DRAM-setup.py set_database_locations \
@@ -159,7 +156,7 @@ rule dram__distill__:
 
         DRAM.py distill \
             --input_file {input.annotations} \
-            --output_dir {params.outdir_tmp} \
+            --output_dir {output.work_dir} \
             --rrna_path  {input.rrnas} \
             --trna_path  {input.trnas} \
         2>> {log} 1>&2
