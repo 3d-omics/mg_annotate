@@ -41,15 +41,10 @@ rule drep__dereplicate__:
         maximum_contamination=params["drep"]["maximum_contamination"],
     shell:
         """
-        rm \
-            --recursive \
-            --force \
-            --verbose \
-            {output.work_dir}/data_tables \
-            {output.work_dir}/data \
-            {output.work_dir}/dereplicated_genomes \
-            {output.work_dir}/figures \
-            {output.work_dir}/log \
+        find \
+            {output.work_dir} \
+            -delete \
+            -print \
         2> {log} 1>&2
 
         dRep dereplicate \
