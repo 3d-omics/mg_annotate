@@ -4,6 +4,6 @@
 mag_catalogue_dir: resources/mag_catalogue/
 
 databases:
-  checkm2: resources/databases/checkm2/20210323/uniref100.KO.1.dmnd
+  checkm2: resources/databases/checkm2/20210323/
   dram: resources/databases/dram/20230811
   gtdbtk: resources/databases/gtdbtk/release214
