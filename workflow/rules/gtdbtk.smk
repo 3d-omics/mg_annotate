@@ -4,7 +4,7 @@ rule gtdbtk__classify_wf__:
         mags=MAGS,
         database=features["databases"]["gtdbtk"],
     output:
-        work_dir=GTDBTK,
+        work_dir=directory(GTDBTK),
     log:
         RESULTS / "gtdbtk.log",
     conda:
