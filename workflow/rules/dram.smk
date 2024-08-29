@@ -122,7 +122,7 @@ rule dram__distill__:
     output:
         work_dir=temp(directory(DRAM / "distill")),
     log:
-        DRAM / "distill.log",
+        RESULTS / "distill.log",
     conda:
         "__environment__.yml"
     params:
@@ -190,7 +190,7 @@ rule dram__distill_archive__:
                 --verbose \
                 {input.work_dir}/$file \
                 {params.out_dir}/dram.$file \
-            2>> {log}
+            2>> {log} 1>&2
 
         done
         """
