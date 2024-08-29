@@ -41,12 +41,6 @@ rule drep__dereplicate__:
         maximum_contamination=params["drep"]["maximum_contamination"],
     shell:
         """
-        find \
-            {output.work_dir} \
-            -delete \
-            -print \
-        2> {log} 1>&2
-
         dRep dereplicate \
             {output.work_dir} \
             --S_ani         {params.secondary_ani} \

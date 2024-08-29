@@ -1,4 +1,4 @@
-rule checkm2__predict:
+rule checkm2__predict__:
     """Run CheckM2 over the dereplicated mags"""
     input:
         mags=MAGS,

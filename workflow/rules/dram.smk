@@ -175,7 +175,7 @@ rule dram__distill_archive__:
         """
         for file in genome_stats.tsv metabolism_summary.xlsx product.html product.tsv ; do
 
-            mv \
+            cp \
                 --verbose \
                 {input.work_dir}/$file \
                 {params.out_dir}/dram.$file \
