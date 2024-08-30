@@ -34,4 +34,4 @@ set-resources:
         runtime: 6h
     gtdbtk__classify_wf__:
         mem_mb: 128G
-        runtime: 6h
+        runtime: 1d
