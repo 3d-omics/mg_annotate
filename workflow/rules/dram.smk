@@ -144,9 +144,10 @@ rule dram_annotate__aggregate_rrnas__:
 
 rule dram__annotate_archive__:
     """
-    Create tarball once annotations are done
+    Create tarball once annotations are merged done
     """
     input:
+        work_dirs=collect_dram_annotate,
         annotations=RESULTS / "dram.annotations.tsv.gz",
         trnas=RESULTS / "dram.trnas.tsv",
         rrnas=RESULTS / "dram.rrnas.tsv",
@@ -227,6 +228,7 @@ rule dram__distill_archive__:
 rule dram:
     """Run DRAM on dereplicated genomes."""
     input:
+        rules.dram__annotate_archive__.output,
         rules.dram__distill_archive__.output,
 
 
