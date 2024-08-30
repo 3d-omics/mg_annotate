@@ -91,11 +91,9 @@ def collect_dram_annotate_rrnas(wildcards):
 rule dram__annotate__aggregate_annotations__:
     """Aggregate DRAM annotations"""
     input:
-        annotations=collect_dram_annotate_annotations,
+        collect_dram_annotate_annotations,
     output:
-        annotations=RESULTS / "dram.annotations.tsv.gz",
-        trnas=RESULTS / "dram.trnas.tsv",
-        rrnas=RESULTS / "dram.rrnas.tsv",
+        RESULTS / "dram.annotations.tsv.gz",
     log:
         RESULTS / "dram.annotate.aggregate.log",
     conda:
@@ -104,12 +102,12 @@ rule dram__annotate__aggregate_annotations__:
         """
         ( csvstack \
             --tabs \
-            {input.annotations} \
+            {input} \
         | csvformat \
             --out-tabs \
         | bgzip \
             --compress-level 9 \
-        > {output.annotations} ) \
+        > {output} ) \
         2> {log}
         """
 
@@ -117,9 +115,9 @@ rule dram__annotate__aggregate_annotations__:
 rule dram__annotate__aggregate_trnas__:
     """Aggregate DRAM tRNAs"""
     input:
-        trnas=collect_dram_annotate_trnas,
+        collect_dram_annotate_trnas,
     output:
-        trnas=RESULTS / "dram.trnas.tsv",
+        RESULTS / "dram.trnas.tsv",
     log:
         RESULTS / "dram.trnas.log",
     conda:
@@ -128,10 +126,10 @@ rule dram__annotate__aggregate_trnas__:
         """
         ( csvstack \
             --tabs \
-            {input.trnas} \
+            {input} \
         | csvformat \
             --out-tabs \
-        > {output.trnas} ) \
+        > {output} ) \
         2> {log}
         """
 
@@ -139,9 +137,9 @@ rule dram__annotate__aggregate_trnas__:
 rule dram_annotate__aggregate_rrnas__:
     """Aggregate DRAM rRNAs"""
     input:
-        rrnas=collect_dram_annotate_rrnas,
+        collect_dram_annotate_rrnas,
     output:
-        rrnas=RESULTS / "dram.rrnas.tsv",
+        RESULTS / "dram.rrnas.tsv",
     log:
         RESULTS / "dram.rrnas.log",
     conda:
@@ -150,10 +148,10 @@ rule dram_annotate__aggregate_rrnas__:
         """
         ( csvstack \
             --tabs \
-            {input.rrnas} \
+            {input} \
         | csvformat \
             --out-tabs \
-        > {output.rrnas} ) \
+        > {output} ) \
         2> {log}
         """
 
