@@ -169,6 +169,8 @@ rule dram__annotate_archive__:
             --verbose \
             {params.work_dir} \
         2>> {log} 1>&2
+
+        rm -rfv {params.work_dir}
         """
 
 
