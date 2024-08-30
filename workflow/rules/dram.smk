@@ -38,9 +38,11 @@ rule dram__annotate__:
         dram_db=features["databases"]["dram"],
         setup=RESULTS / "dram.setup",
     output:
-        annotations=temp(RESULTS / "dram.annotate" / "{mag_id}" / "annotations.tsv"),
-        trnas=temp(RESULTS / "dram.annotate" / "{mag_id}" / "trnas.tsv"),
-        rrnas=temp(RESULTS / "dram.annotate" / "{mag_id}" / "rrnas.tsv"),
+        annotations=temp(
+            touch(RESULTS / "dram.annotate" / "{mag_id}" / "annotations.tsv")
+        ),
+        trnas=temp(touch(RESULTS / "dram.annotate" / "{mag_id}" / "trnas.tsv")),
+        rrnas=temp(touch(RESULTS / "dram.annotate" / "{mag_id}" / "rrnas.tsv")),
     log:
         RESULTS / "dram.annotate" / "{mag_id}.log",
     conda:
