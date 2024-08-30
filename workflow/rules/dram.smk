@@ -1,12 +1,12 @@
 rule dram__annotate__:
     """Annotate dereplicate genomes with DRAM in parallel"""
     input:
-        mags=MAGS,
+        fasta=MAGS / "{mag_id}.fa",
         dram_db=features["databases"]["dram"],
     output:
-        out_dir=temp(directory(RESULTS / "dram.annotate")),
+        out_dir=temp(directory(RESULTS / "dram.annotate" / "{mag_id}")),
     log:
-        RESULTS / "dram.annotate.log",
+        RESULTS / "dram.annotate" / "{mag_id}.log",
     conda:
         "__environment__.yml"
     params:
@@ -16,18 +16,6 @@ rule dram__annotate__:
         parallel_retries=5,
     shell:
         """
-        rm \
-            --recursive \
-            --force \
-            --verbose \
-            {params.tmp_dir} \
-        2> {log} 1>&2
-
-        mkdir \
-            --parents \
-            {params.tmp_dir} \
-        2>>{log} 1>&2
-
         DRAM-setup.py set_database_locations \
             --amg_database_loc          {input.dram_db}/amg_database.*.tsv \
             --dbcan_fam_activities_loc  {input.dram_db}/CAZyDB.*.fam-activities.txt \
@@ -48,33 +36,106 @@ rule dram__annotate__:
             --vogdb_loc                 {input.dram_db}/vog_latest_hmms.txt \
         2>> {log} 1>&2
 
-        ( find \
-            results/mags \
-            -name "*.fa" \
-            -exec ls -al {{}} \\; \
-        | sort \
-            --key 5 \
-            --numeric-sort \
-            --reverse \
-        | awk \
-            '{{print $9}}' \
-        | parallel \
-            --jobs {threads} \
-            DRAM.py annotate \
-                --input_fasta {{}} \
-                --output_dir {params.tmp_dir}/{{/.}} \
-                --threads 1 \
-        ) 2>> {log} 1>&2
+        DRAM.py annotate \
+            --input_fasta {input.fasta} \
+            --output_dir {output.out_dir} \
+            --threads 1 \
+        2>> {log} 1>&2
+        """
+
+
+def collect_dram_annotate_annotations(wildcards):
+    return [
+        RESULTS / "dram.annotate" / mag_id / "annotations.tsv"
+        for mag_id in glob_wildcards(RESULTS / "dram.annotate" / "{mag_id}.fa").mag_id
+    ]
+
+
+def collect_dram_annotate_trnas(wildcards):
+    return [
+        RESULTS / "dram.annotate" / mag_id / "trnas.tsv"
+        for mag_id in glob_wildcards(RESULTS / "dram.annotate" / "{mag_id}.fa").mag_id
+    ]
+
+
+def collect_dram_annotate_rrnas(wildcards):
+    return [
+        RESULTS / "dram.annotate" / mag_id / "rrnas.tsv"
+        for mag_id in glob_wildcards(RESULTS / "dram.annotate" / "{mag_id}.fa").mag_id
+    ]
+
+
+rule dram__annotate_aggregate_annotations:
+    input:
+        collect_dram_annotate_annotations,
+    output:
+        RESULTS / "dram.annotations.tsv.gz",
+    log:
+        RESULTS / "dram.aggregate_annotations.log",
+    conda:
+        "__environment__.yml"
+    shell:
+        """
+        ( csvstack \
+            --tabs \
+            {input} \
+        | csvformat \
+            --out-tabs \
+        | bgzip \
+            --compress-level 9 \
+        > {output} ) \
+        2> {log}
+        """
+
+
+rule dram__annotate_aggregate_trnas:
+    input:
+        collect_dram_annotate_trnas,
+    output:
+        RESULTS / "dram.trnas.tsv",
+    log:
+        RESULTS / "dram.aggregate_trnas.log",
+    conda:
+        "__environment__.yml"
+    shell:
+        """
+        ( csvstack \
+            --tabs \
+            {input} \
+        | csvformat \
+            --out-tabs \
+        > {output} ) \
+        2> {log}
+        """
+
+
+rule dram__annotate_aggregate_rrnas:
+    input:
+        collect_dram_annotate_rrnas,
+    output:
+        RESULTS / "dram.rrnas.tsv",
+    log:
+        RESULTS / "dram.aggregate_rrnas.log",
+    conda:
+        "__environment__.yml"
+    shell:
+        """
+        ( csvstack \
+            --tabs \
+            {input} \
+        | csvformat \
+            --out-tabs \
+        > {output} ) \
+        2> {log}
         """
 
 
 rule dram__annotate_archive__:
     input:
-        out_dir=RESULTS / "dram.annotate",
-    output:
-        annotation=RESULTS / "dram.annotations.tsv.gz",
+        annotations=RESULTS / "dram.annotations.tsv.gz",
         trnas=RESULTS / "dram.trnas.tsv",
         rrnas=RESULTS / "dram.rrnas.tsv",
+    output:
         tarball=RESULTS / "dram.annotate.tar.gz",
     log:
         RESULTS / "dram.archive.log",
@@ -82,32 +143,15 @@ rule dram__annotate_archive__:
         "__environment__.yml"
     params:
         out_dir=RESULTS,
+        work_dir=RESULTS / "dram.annotate",
     shell:
         """
-        for file in annotations trnas rrnas ; do
-
-            ( csvstack \
-                --tabs \
-                {input.out_dir}/*/$file.tsv \
-            | csvformat \
-                --out-tabs \
-            > {params.out_dir}/dram.$file.tsv \
-            ) 2>> {log}
-
-        done
-
-        bgzip \
-            --compress-level 9 \
-            --threads {threads} \
-            {params.out_dir}/dram.annotations.tsv \
-        2>> {log} 1>&2
-
         tar \
             --create \
             --file {output.tarball} \
             --use-compress-program="pigz --processes {threads}" \
             --verbose \
-            {input.out_dir} \
+            {params.work_dir} \
         2>> {log} 1>&2
         """
 

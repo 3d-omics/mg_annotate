@@ -1,4 +1,4 @@
-rule mags:
+checkpoint mags:
     input:
         features["mag_catalogue_dir"],
     output:
