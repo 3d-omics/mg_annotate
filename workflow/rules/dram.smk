@@ -1,4 +1,7 @@
 rule dram__setup__:
+    """
+    Set up the databases from DRAM, no matter what the config file says.
+    """
     input:
         dram_db=features["databases"]["dram"],
     output:
@@ -32,7 +35,7 @@ rule dram__setup__:
 
 
 rule dram__annotate__:
-    """Annotate dereplicate genomes with DRAM in parallel"""
+    """Annotate dereplicate genomes with DRAM"""
     input:
         fasta=MAGS / "{mag_id}.fa",
         dram_db=features["databases"]["dram"],
@@ -63,6 +66,7 @@ rule dram__annotate__:
 
 
 def collect_dram_annotate_annotations(wildcards):
+    """Get all the annotations.tsv files"""
     checkpoint_output = checkpoints.mags.get().output[0]
     mag_ids = glob_wildcards(MAGS / "{mag_id}.fa").mag_id
     return [
@@ -71,22 +75,23 @@ def collect_dram_annotate_annotations(wildcards):
 
 
 def collect_dram_annotate_trnas(wildcards):
+    """Get all the trnas.tsv files"""
     checkpoint_output = checkpoints.mags.get().output[0]
     mag_ids = glob_wildcards(MAGS / "{mag_id}.fa").mag_id
     return [RESULTS / "dram.annotate" / mag_id / "trnas.tsv" for mag_id in mag_ids]
 
 
 def collect_dram_annotate_rrnas(wildcards):
+    """Get all the rrnas.tsv files"""
     checkpoint_output = checkpoints.mags.get().output[0]
     mag_ids = glob_wildcards(MAGS / "{mag_id}.fa").mag_id
     return [RESULTS / "dram.annotate" / mag_id / "rrnas.tsv" for mag_id in mag_ids]
 
 
-rule dram__annotate__aggregate__:
+rule dram__annotate__aggregate_annotations__:
+    """Aggregate DRAM annotations"""
     input:
         annotations=collect_dram_annotate_annotations,
-        trnas=collect_dram_annotate_trnas,
-        rrnas=collect_dram_annotate_rrnas,
     output:
         annotations=RESULTS / "dram.annotations.tsv.gz",
         trnas=RESULTS / "dram.trnas.tsv",
@@ -106,26 +111,57 @@ rule dram__annotate__aggregate__:
             --compress-level 9 \
         > {output.annotations} ) \
         2> {log}
+        """
 
+
+rule dram__annotate__aggregate_trnas__:
+    """Aggregate DRAM tRNAs"""
+    input:
+        trnas=collect_dram_annotate_trnas,
+    output:
+        trnas=RESULTS / "dram.trnas.tsv",
+    log:
+        RESULTS / "dram.trnas.log",
+    conda:
+        "__environment__.yml"
+    shell:
+        """
         ( csvstack \
             --tabs \
             {input.trnas} \
         | csvformat \
             --out-tabs \
         > {output.trnas} ) \
-        2>> {log}
+        2> {log}
+        """
 
+
+rule dram_annotate__aggregate_rrnas__:
+    """Aggregate DRAM rRNAs"""
+    input:
+        rrnas=collect_dram_annotate_rrnas,
+    output:
+        rrnas=RESULTS / "dram.rrnas.tsv",
+    log:
+        RESULTS / "dram.rrnas.log",
+    conda:
+        "__environment__.yml"
+    shell:
+        """
         ( csvstack \
             --tabs \
             {input.rrnas} \
         | csvformat \
             --out-tabs \
         > {output.rrnas} ) \
-        2>> {log}
+        2> {log}
         """
 
 
 rule dram__annotate_archive__:
+    """
+    Create tarball once annotations are done
+    """
     input:
         annotations=RESULTS / "dram.annotations.tsv.gz",
         trnas=RESULTS / "dram.trnas.tsv",
