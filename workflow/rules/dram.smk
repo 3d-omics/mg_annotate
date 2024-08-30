@@ -45,6 +45,7 @@ rule dram__annotate__:
 
 
 def collect_dram_annotate_annotations(wildcards):
+    checkpoints.mags.get()
     return [
         RESULTS / "dram.annotate" / mag_id / "annotations.tsv"
         for mag_id in glob_wildcards(RESULTS / "dram.annotate" / "{mag_id}.fa").mag_id
@@ -52,6 +53,7 @@ def collect_dram_annotate_annotations(wildcards):
 
 
 def collect_dram_annotate_trnas(wildcards):
+    checkpoints.mags.get()
     return [
         RESULTS / "dram.annotate" / mag_id / "trnas.tsv"
         for mag_id in glob_wildcards(RESULTS / "dram.annotate" / "{mag_id}.fa").mag_id
@@ -59,6 +61,7 @@ def collect_dram_annotate_trnas(wildcards):
 
 
 def collect_dram_annotate_rrnas(wildcards):
+    checkpoints.mags.get()
     return [
         RESULTS / "dram.annotate" / mag_id / "rrnas.tsv"
         for mag_id in glob_wildcards(RESULTS / "dram.annotate" / "{mag_id}.fa").mag_id
