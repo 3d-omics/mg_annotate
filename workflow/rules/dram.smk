@@ -36,6 +36,8 @@ rule dram__annotate__:
             --vogdb_loc                 {input.dram_db}/vog_latest_hmms.txt \
         2>> {log} 1>&2
 
+        rm -rf {params.work_dir}
+
         DRAM.py annotate \
             --input_fasta {input.fasta} \
             --output_dir {params.work_dir} \
