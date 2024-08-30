@@ -4,16 +4,16 @@ rule dram__annotate__:
         fasta=MAGS / "{mag_id}.fa",
         dram_db=features["databases"]["dram"],
     output:
-        out_dir=temp(directory(RESULTS / "dram.annotate" / "{mag_id}")),
+        annotations=temp(RESULTS / "dram.annotate" / "{mag_id}" / "annotations.tsv"),
+        trnas=temp(RESULTS / "dram.annotate" / "{mag_id}" / "trnas.tsv"),
+        rrnas=temp(RESULTS / "dram.annotate" / "{mag_id}" / "rrnas.tsv"),
     log:
         RESULTS / "dram.annotate" / "{mag_id}.log",
     conda:
         "__environment__.yml"
     params:
         min_contig_size=params["dram"]["annotate"]["min_contig_size"],
-        out_dir=RESULTS,
-        tmp_dir=RESULTS / "dram.annotate",
-        parallel_retries=5,
+        work_dir=RESULTS / "dram.annotate" / "{mag_id}",
     shell:
         """
         DRAM-setup.py set_database_locations \
@@ -38,98 +38,72 @@ rule dram__annotate__:
 
         DRAM.py annotate \
             --input_fasta {input.fasta} \
-            --output_dir {output.out_dir} \
+            --output_dir {params.work_dir} \
             --threads 1 \
         2>> {log} 1>&2
         """
 
 
 def collect_dram_annotate_annotations(wildcards):
-    checkpoints.mags.get()
+    checkpoint_output = checkpoints.mags.get().output[0]
+    mag_ids = glob_wildcards(MAGS / "{mag_id}.fa").mag_id
     return [
-        RESULTS / "dram.annotate" / mag_id / "annotations.tsv"
-        for mag_id in glob_wildcards(RESULTS / "dram.annotate" / "{mag_id}.fa").mag_id
+        RESULTS / "dram.annotate" / mag_id / "annotations.tsv" for mag_id in mag_ids
     ]
 
 
 def collect_dram_annotate_trnas(wildcards):
-    checkpoints.mags.get()
-    return [
-        RESULTS / "dram.annotate" / mag_id / "trnas.tsv"
-        for mag_id in glob_wildcards(RESULTS / "dram.annotate" / "{mag_id}.fa").mag_id
-    ]
+    checkpoint_output = checkpoints.mags.get().output[0]
+    mag_ids = glob_wildcards(MAGS / "{mag_id}.fa").mag_id
+    return [RESULTS / "dram.annotate" / mag_id / "trnas.tsv" for mag_id in mag_ids]
 
 
 def collect_dram_annotate_rrnas(wildcards):
-    checkpoints.mags.get()
-    return [
-        RESULTS / "dram.annotate" / mag_id / "rrnas.tsv"
-        for mag_id in glob_wildcards(RESULTS / "dram.annotate" / "{mag_id}.fa").mag_id
-    ]
+    checkpoint_output = checkpoints.mags.get().output[0]
+    mag_ids = glob_wildcards(MAGS / "{mag_id}.fa").mag_id
+    return [RESULTS / "dram.annotate" / mag_id / "rrnas.tsv" for mag_id in mag_ids]
 
 
-rule dram__annotate_aggregate_annotations:
+rule dram__annotate__aggregate__:
     input:
-        collect_dram_annotate_annotations,
+        annotations=collect_dram_annotate_annotations,
+        trnas=collect_dram_annotate_trnas,
+        rrnas=collect_dram_annotate_rrnas,
     output:
-        RESULTS / "dram.annotations.tsv.gz",
+        annotations=RESULTS / "dram.annotations.tsv.gz",
+        trnas=RESULTS / "dram.trnas.tsv",
+        rrnas=RESULTS / "dram.rrnas.tsv",
     log:
-        RESULTS / "dram.aggregate_annotations.log",
+        RESULTS / "dram.annotate.aggregate.log",
     conda:
         "__environment__.yml"
     shell:
         """
         ( csvstack \
             --tabs \
-            {input} \
+            {input.annotations} \
         | csvformat \
             --out-tabs \
         | bgzip \
             --compress-level 9 \
-        > {output} ) \
+        > {output.annotations} ) \
         2> {log}
-        """
 
-
-rule dram__annotate_aggregate_trnas:
-    input:
-        collect_dram_annotate_trnas,
-    output:
-        RESULTS / "dram.trnas.tsv",
-    log:
-        RESULTS / "dram.aggregate_trnas.log",
-    conda:
-        "__environment__.yml"
-    shell:
-        """
         ( csvstack \
             --tabs \
-            {input} \
+            {input.trnas} \
         | csvformat \
             --out-tabs \
-        > {output} ) \
-        2> {log}
-        """
+        > {output.trnas} ) \
+        2>> {log}
 
-
-rule dram__annotate_aggregate_rrnas:
-    input:
-        collect_dram_annotate_rrnas,
-    output:
-        RESULTS / "dram.rrnas.tsv",
-    log:
-        RESULTS / "dram.aggregate_rrnas.log",
-    conda:
-        "__environment__.yml"
-    shell:
-        """
         ( csvstack \
             --tabs \
-            {input} \
+            {input.rrnas} \
         | csvformat \
             --out-tabs \
-        > {output} ) \
-        2> {log}
+        > {output.rrnas} ) \
+        2>> {log}
         """
 
 
