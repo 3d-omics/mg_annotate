@@ -47,7 +47,7 @@ rule dram__annotate__:
         "__environment__.yml"
     params:
         min_contig_size=params["dram"]["annotate"]["min_contig_size"],
-        work_dir=RESULTS / "dram.annotate" / "{mag_id}",
+        work_dir=lambda w: RESULTS / "dram.annotate" / f"{w.mag_id}",
     shell:
         """
         rm -rf {params.work_dir}
