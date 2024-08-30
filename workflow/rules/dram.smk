@@ -1,19 +1,12 @@
-rule dram__annotate__:
-    """Annotate dereplicate genomes with DRAM in parallel"""
+rule dram__setup__:
     input:
-        fasta=MAGS / "{mag_id}.fa",
         dram_db=features["databases"]["dram"],
     output:
-        annotations=temp(RESULTS / "dram.annotate" / "{mag_id}" / "annotations.tsv"),
-        trnas=temp(RESULTS / "dram.annotate" / "{mag_id}" / "trnas.tsv"),
-        rrnas=temp(RESULTS / "dram.annotate" / "{mag_id}" / "rrnas.tsv"),
+        touch(RESULTS / "dram.setup"),
     log:
-        RESULTS / "dram.annotate" / "{mag_id}.log",
+        RESULTS / "dram.setup.log",
     conda:
         "__environment__.yml"
-    params:
-        min_contig_size=params["dram"]["annotate"]["min_contig_size"],
-        work_dir=RESULTS / "dram.annotate" / "{mag_id}",
     shell:
         """
         DRAM-setup.py set_database_locations \
@@ -35,7 +28,28 @@ rule dram__annotate__:
             --vog_annotations_loc       {input.dram_db}/vog_annotations_latest.tsv.gz \
             --vogdb_loc                 {input.dram_db}/vog_latest_hmms.txt \
         2>> {log} 1>&2
+        """
 
+
+rule dram__annotate__:
+    """Annotate dereplicate genomes with DRAM in parallel"""
+    input:
+        fasta=MAGS / "{mag_id}.fa",
+        dram_db=features["databases"]["dram"],
+        setup=RESULTS / "dram.setup",
+    output:
+        annotations=temp(RESULTS / "dram.annotate" / "{mag_id}" / "annotations.tsv"),
+        trnas=temp(RESULTS / "dram.annotate" / "{mag_id}" / "trnas.tsv"),
+        rrnas=temp(RESULTS / "dram.annotate" / "{mag_id}" / "rrnas.tsv"),
+    log:
+        RESULTS / "dram.annotate" / "{mag_id}.log",
+    conda:
+        "__environment__.yml"
+    params:
+        min_contig_size=params["dram"]["annotate"]["min_contig_size"],
+        work_dir=RESULTS / "dram.annotate" / "{mag_id}",
+    shell:
+        """
         rm -rf {params.work_dir}
 
         DRAM.py annotate \
@@ -142,6 +156,7 @@ rule dram__distill__:
         trnas=RESULTS / "dram.trnas.tsv",
         rrnas=RESULTS / "dram.rrnas.tsv",
         dram_db=features["databases"]["dram"],
+        setup=RESULTS / "dram.setup",
     output:
         work_dir=temp(directory(RESULTS / "dram.distill")),
     log:
@@ -150,26 +165,6 @@ rule dram__distill__:
         "__environment__.yml"
     shell:
         """
-        DRAM-setup.py set_database_locations \
-            --amg_database_loc          {input.dram_db}/amg_database.*.tsv \
-            --dbcan_fam_activities_loc  {input.dram_db}/CAZyDB.*.fam-activities.txt \
-            --dbcan_loc                 {input.dram_db}/dbCAN-HMMdb-V*.txt \
-            --dbcan_subfam_ec_loc       {input.dram_db}/CAZyDB.*.fam.subfam.ec.txt \
-            --description_db_loc        {input.dram_db}/description_db.sqlite \
-            --etc_module_database_loc   {input.dram_db}/etc_mdoule_database.*.tsv \
-            --function_heatmap_form_loc {input.dram_db}/function_heatmap_form.*.tsv \
-            --genome_summary_form_loc   {input.dram_db}/genome_summary_form.*.tsv \
-            --kofam_hmm_loc             {input.dram_db}/kofam_profiles.hmm \
-            --kofam_ko_list_loc         {input.dram_db}/kofam_ko_list.tsv \
-            --module_step_form_loc      {input.dram_db}/module_step_form.*.tsv \
-            --peptidase_loc             {input.dram_db}/peptidases.*.mmsdb \
-            --pfam_hmm_loc              {input.dram_db}/Pfam-A.hmm.dat.gz \
-            --pfam_loc                  {input.dram_db}/pfam.mmspro \
-            --viral_loc                 {input.dram_db}/refseq_viral.*.mmsdb \
-            --vog_annotations_loc       {input.dram_db}/vog_annotations_latest.tsv.gz \
-            --vogdb_loc                 {input.dram_db}/vog_latest_hmms.txt \
-        2>> {log} 1>&2
-
         DRAM.py distill \
             --input_file {input.annotations} \
             --output_dir {output.work_dir} \
