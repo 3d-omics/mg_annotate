@@ -10,7 +10,6 @@ default-resources:
 
 set-threads:
     checkm2__predict__: 24
-    dram__annotate__: 24
     dram__annotate_archive__: 24
     drep__dereplicate__: 24
     drep__get_fasta__: 24
@@ -23,7 +22,7 @@ set-resources:
         mem_mb: 16G
         runtime: 6h
     dram__annotate__:
-        mem_mb: 64G
+        mem_mb: 8G
         runtime: 1d
     dram__distill__:
         mem_mb: 16G
