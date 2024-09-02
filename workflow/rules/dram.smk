@@ -205,7 +205,6 @@ rule dram__distill_archive__:
     output:
         genome=RESULTS / "dram.genome_stats.tsv",
         metabolism=RESULTS / "dram.metabolism_summary.xlsx",
-        product_html=RESULTS / "dram.product.html",
         product_tsv=RESULTS / "dram.product.tsv",
     log:
         RESULTS / "dram.distill_archive.log",
