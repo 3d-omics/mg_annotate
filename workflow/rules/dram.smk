@@ -216,7 +216,7 @@ rule dram__distill_archive__:
         dram_dir=DRAM,
     shell:
         """
-        for file in genome_stats.tsv metabolism_summary.xlsx product.html product.tsv ; do
+        for file in genome_stats.tsv metabolism_summary.xlsx product.tsv ; do
 
             cp \
                 --verbose \
