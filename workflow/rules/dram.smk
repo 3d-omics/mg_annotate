@@ -185,7 +185,7 @@ rule dram__distill__:
     output:
         work_dir=temp(directory(RESULTS / "dram.distill")),
     log:
-        RESULTS / "distill.log",
+        RESULTS / "dram.distill.log",
     conda:
         "__environment__.yml"
     shell:
