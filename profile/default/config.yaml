@@ -9,6 +9,9 @@ default-resources:
 
 
 set-threads:
+    checkm__lineage_wf__: 24
+    checkm__qa__: 4
+    checkm__archive__: 24
     checkm2__predict__: 24
     dram__annotate_archive__: 24
     drep__dereplicate__: 24
@@ -18,6 +21,15 @@ set-threads:
 
 
 set-resources:
+    checkm__lineage_wf__:
+        mem_mb: 128G
+        runtime: 2d
+    checkm__qa__:
+        mem_mb: 8G
+        runtime: 12h
+    checkm__archive__:
+        mem_mb: 2G
+        runtime: 2h
     checkm2__predict__:
         mem_mb: 16G
         runtime: 6h
