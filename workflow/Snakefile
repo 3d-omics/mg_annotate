@@ -22,13 +22,11 @@ include: "rules/checkm2.smk"
 include: "rules/drep.smk"
 include: "rules/gtdbtk.smk"
 include: "rules/dram.smk"
-include: "rules/checkm.smk"
 
 
 rule all:
     """Run the entire pipeline"""
     input:
-        rules.checkm.input,
         rules.checkm2.output,
         rules.drep.input,
         rules.gtdbtk.input,
