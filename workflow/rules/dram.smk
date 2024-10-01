@@ -161,7 +161,7 @@ rule dram__annotate__gtf__:
             '{{$5=($5 == -1) ? "-" : "+"}}1' \
         | awk \
             -v OFS="\\t" \
-            '{{print $2, "DRAM", "gene", $3, $4, ".", $5, ".", "gene_id=" $1}}'
+            '{{print $2, "DRAM", "gene", $3, $4, ".", $5, ".", "gene_id=" $1}}' \
         | bgzip \
             --compress-level 9 \
         > {output} \
