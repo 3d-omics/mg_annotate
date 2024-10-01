@@ -151,8 +151,23 @@ rule dram__annotate__gtf__:
         RESULTS / "dram.gtf.log",
     conda:
         "__environment__.yml"
-    script:
-        "workflows/scripts/dram_annotations_to_gtf.R"
+    shell:
+        """
+        ( zcat {input.annotations} \
+        | tail -n+2 \
+        | head -10 \
+        | cut -f 1,3,5,6,7 \
+        | awk \
+            -v OFS="\t" \
+            '{$5=($5 == -1) ? "-" : "+"}1' \
+        | awk \
+            -v OFS="\t" \
+            '{print $2, "DRAM", "gene", $3, $4, ".", $5, ".", "gene_id=" $1}'
+        | bgzip \
+            --compress-level 9 \
+        > {output} \
+        ) 2> {log}
+        """
 
 
 rule dram__annotate__archive__:
