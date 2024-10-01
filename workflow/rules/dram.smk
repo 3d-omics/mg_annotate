@@ -155,7 +155,6 @@ rule dram__annotate__gtf__:
         """
         ( zcat {input.annotations} \
         | tail -n+2 \
-        | head -10 \
         | cut -f 1,3,5,6,7 \
         | awk \
             -v OFS="\\t" \
