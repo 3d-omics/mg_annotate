@@ -118,7 +118,7 @@ rule dram__annotate__aggregate_trnas__:
         """
 
 
-rule dram_annotate__aggregate_rrnas__:
+rule dram__annotate__aggregate_rrnas__:
     """Aggregate DRAM rRNAs"""
     input:
         collect_dram_annotate,
@@ -142,7 +142,20 @@ rule dram_annotate__aggregate_rrnas__:
         """
 
 
-rule dram__annotate_archive__:
+rule dram__annotate__gtf__:
+    input:
+        annotations=RESULTS / "dram.annotations.tsv.gz",
+    output:
+        gtf=RESULTS / "dram.annotations.gtf.gz",
+    log:
+        RESULTS / "dram.gtf.log",
+    conda:
+        "__environment__.yml"
+    script:
+        "workflows/scripts/dram_annotations_to_gtf.R"
+
+
+rule dram__annotate__archive__:
     """
     Create tarball once annotations are merged done
     """
@@ -199,7 +212,7 @@ rule dram__distill__:
         """
 
 
-rule dram__distill_archive__:
+rule dram__distill__archive__:
     input:
         work_dir=RESULTS / "dram.distill",
     output:
@@ -229,9 +242,10 @@ rule dram__distill_archive__:
 rule dram:
     """Run DRAM on dereplicated genomes."""
     input:
-        rules.dram__annotate_archive__.output,
-        rules.dram__distill_archive__.output,
+        rules.dram__annotate__archive__.output,
+        rules.dram__annotate__gtf__.output,
+        rules.dram__distill__archive__.output,
 
 
 localrules:
-    dram__distill_archive__,
+    dram__distill__archive__,
