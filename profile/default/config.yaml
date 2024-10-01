@@ -36,9 +36,17 @@ set-resources:
     dram__annotate__:
         mem_mb: 8G
         runtime: 1d
+    dram__annotate__aggregate_annotations__:
+        mem_mb: 4G
+    dram__annotate__aggregate_rrnas__:
+        mem_mb: 4G
+    dram__annotate__aggregate_trnas__:
+        mem_mb: 4G
     dram__distill__:
         mem_mb: 16G
         runtime: 1d
+    dram__gtf__:
+        mem_mb: 8G
     drep__dereplicate__:
         mem_mb: 64G
         runtime: 6h
