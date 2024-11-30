@@ -8,7 +8,7 @@ rule gtdbtk__classify_wf:
     log:
         RESULTS / "gtdbtk.log",
     conda:
-        "../../../environments/gtdbtk.yml"
+        "../environments/gtdbtk.yml"
     threads: 24
     resources:
         mem_mb=128 * 1024,
@@ -37,7 +37,7 @@ rule gtdbtk__join_bac_and_ar:
     log:
         RESULTS / "gtdbtk.join.log",
     conda:
-        "../../../environments/gtdbtk.yml"
+        "../environments/gtdbtk.yml"
     shell:
         """
         csvkit concat \
