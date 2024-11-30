@@ -8,7 +8,7 @@ rule gtdbtk__classify_wf__:
     log:
         RESULTS / "gtdbtk.log",
     conda:
-        "__environment__.yml"
+        "../environments/gtdbtk.yml"
     shell:
         """
         export GTDBTK_DATA_PATH="{input.database}"
@@ -33,7 +33,7 @@ rule gtdbtk__join_bac_and_ar__:
     log:
         GTDBTK / "gtdbtk.join.log",
     conda:
-        "__environment__.yml"
+        "../environments/csvkit.yml"
     shell:
         """
         if [[ -f {input.work_dir}/gtdbtk.ar122.summary.tsv ]] ; then
