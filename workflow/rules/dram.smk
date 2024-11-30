@@ -1,15 +1,18 @@
-rule dram__setup__:
+include: "dram_functions.smk"
+
+
+rule dram__setup:
     """
     Set up the databases from DRAM, no matter what the config file says.
     """
     input:
         dram_db=features["databases"]["dram"],
     output:
-        touch(RESULTS / "dram.setup"),
+        touch(RESULTS / "dram.setup.txt"),
     log:
         RESULTS / "dram.setup.log",
     conda:
-        "__environment__.yml"
+        "../environments/dram.yml"
     shell:
         """
         DRAM-setup.py set_database_locations \
@@ -34,24 +37,31 @@ rule dram__setup__:
         """
 
 
-rule dram__annotate__:
+rule dram__annotate:
     """Annotate dereplicate genomes with DRAM"""
     input:
-        fasta=MAGS / "{mag_id}.fa",
+        fasta=RESULTS / "dram.mags" / "{mag_id}.fa",
         dram_db=features["databases"]["dram"],
-        setup=RESULTS / "dram.setup",
+        setup=RESULTS / "dram.setup.txt",
     output:
         work_dir=temp(directory(RESULTS / "dram.annotate" / "{mag_id}")),
     log:
         RESULTS / "dram.annotate" / "{mag_id}.log",
     conda:
-        "__environment__.yml"
+        "../environments/dram.yml"
     params:
         min_contig_size=params["dram"]["annotate"]["min_contig_size"],
-        work_dir=lambda w: RESULTS / "dram.annotate" / f"{w.mag_id}",
+    resources:
+        mem_mb=8 * 1024,
+        runtime=24 * 60,
     shell:
         """
-        rm -rf {params.work_dir}
+        rm \
+            --recursive \
+            --force \
+            --verbose \
+            {output.work_dir} \
+        2> {log} 1>&2
 
         DRAM.py annotate \
             --input_fasta {input.fasta} \
@@ -61,107 +71,73 @@ rule dram__annotate__:
         """
 
 
-def collect_dram_annotate(wildcards):
-    checkpoint_output = checkpoints.mags.get().output[0]
-    checkpoint_output = checkpoints.mags.get().output[0]
-    mag_ids = glob_wildcards(MAGS / "{mag_id}.fa").mag_id
-    return [RESULTS / "dram.annotate" / mag_id for mag_id in mag_ids]
+for file in ["annotations", "trnas", "rrnas"]:
+
+    rule:
+        name:
+            f"dram__annotate__aggregate_{file}"
+        input:
+            collect_dram_annotate,
+        output:
+            RESULTS / f"dram.{file}.tsv.gz",
+        log:
+            RESULTS / f"dram.{file}.log",
+        conda:
+            "../environments/dram.yml"
+        params:
+            work_dir=RESULTS / "dram.annotate",
+        shell:
+            f"( csvtk concat {{params.work_dir}}/*/{file} "
+            f"| sed -r 's/[[:alnum:]]+:bin_[0-9]+_([[:alnum:]]+:bin_[0-9]+@contig_[0-9]+)/\1/g' "
+            f"| bgzip --compress-level 9 "
+            f"> {{output}} "
+            f") 2> {{log}}"
 
 
-rule dram__annotate__aggregate_annotations__:
-    """Aggregate DRAM annotations"""
+for file in ["genes.gff", "genes.fna", "genes.faa", "scaffolds.fna"]:
+
+    rule:
+        name:
+            f"dram__annotate__concatenate_{file}"
+        input:
+            collect_dram_annotate,
+        output:
+            RESULTS / f"dram.{file}.gz",
+        log:
+            RESULTS / f"dram.{file}.log",
+        conda:
+            "../environments/dram.yml"
+        params:
+            work_dir=RESULTS / "dram.annotate",
+        shell:
+            f"( cat {{params.work_dir}}/*/{file} "
+            f"| sed -r 's/[[:alnum:]]+:bin_[0-9]+_([[:alnum:]]+:bin_[0-9]+@contig_[0-9]+)/\1/g' "
+            f"| bgzip --compress-level 9 "
+            f"> {{output}}"
+            f") 2> {{log}}"
+
+
+rule dram__annotate__aggregate_genbank:
+    """Aggregate all DRAM genbank files"""
     input:
         collect_dram_annotate,
     output:
-        RESULTS / "dram.annotations.tsv.gz",
+        RESULTS / "dram.genbank.gbk.gz",
     log:
-        RESULTS / "dram.annotate.aggregate.log",
+        RESULTS / "dram.genbank.log",
     conda:
-        "__environment__.yml"
+        "../environments/dram.yml"
     params:
         work_dir=RESULTS / "dram.annotate",
+    resources:
+        runtime=6 * 60,
     shell:
         """
-        ( csvstack \
-            --tabs \
-            {params.work_dir}/*/annotations.tsv \
-        | csvformat \
-            --out-tabs \
-        | bgzip \
-            --compress-level 9 \
-        > {output} ) \
-        2> {log}
-        """
-
-
-rule dram__annotate__aggregate_trnas__:
-    """Aggregate DRAM tRNAs"""
-    input:
-        collect_dram_annotate,
-    output:
-        RESULTS / "dram.trnas.tsv",
-    log:
-        RESULTS / "dram.trnas.log",
-    conda:
-        "__environment__.yml"
-    params:
-        work_dir=RESULTS / "dram.annotate",
-    shell:
-        """
-        ( csvstack \
-            --tabs \
-            {params.work_dir}/*/trnas.tsv \
-        | csvformat \
-            --out-tabs \
-        > {output} ) \
-        2> {log}
-        """
-
-
-rule dram__annotate__aggregate_rrnas__:
-    """Aggregate DRAM rRNAs"""
-    input:
-        collect_dram_annotate,
-    output:
-        RESULTS / "dram.rrnas.tsv",
-    log:
-        RESULTS / "dram.rrnas.log",
-    conda:
-        "__environment__.yml"
-    params:
-        work_dir=RESULTS / "dram.annotate",
-    shell:
-        """
-        ( csvstack \
-            --tabs \
-            {params.work_dir}/*/rrnas.tsv \
-        | csvformat \
-            --out-tabs \
-        > {output} ) \
-        2> {log}
-        """
-
-
-rule dram__annotate__gtf__:
-    input:
-        annotations=RESULTS / "dram.annotations.tsv.gz",
-    output:
-        gtf=RESULTS / "dram.annotations.gtf.gz",
-    log:
-        RESULTS / "dram.gtf.log",
-    conda:
-        "__environment__.yml"
-    shell:
-        """
-        ( zcat {input.annotations} \
-        | tail -n+2 \
-        | cut -f 1,3,5,6,7 \
-        | awk \
-            -v OFS="\\t" \
-            '{{$5=($5 == -1) ? "-" : "+"}}1' \
-        | awk \
-            -v OFS="\\t" \
-            '{{print $2, "DRAM", "gene", $3, $4, ".", $5, ".", "gene_id=" $1}}' \
+        ( cat \
+            --verbose \
+            {params.work_dir}/*/genbank/*.gbk \
+        | sed \
+            -r 's/[[:alnum:]]+:bin_[0-9]+_([[:alnum:]]+:bin_[0-9]+@contig_[0-9]+)/\1/g' \
         | bgzip \
             --compress-level 9 \
         > {output} \
@@ -169,21 +145,26 @@ rule dram__annotate__gtf__:
         """
 
 
-rule dram__annotate__archive__:
+rule dram__annotate__archive:
     """
     Create tarball once annotations are merged done
     """
     input:
-        work_dirs=collect_dram_annotate,
         annotations=RESULTS / "dram.annotations.tsv.gz",
-        trnas=RESULTS / "dram.trnas.tsv",
-        rrnas=RESULTS / "dram.rrnas.tsv",
+        trnas=RESULTS / "dram.trnas.tsv.gz",
+        rrnas=RESULTS / "dram.rrnas.tsv.gz",
+        gtf=RESULTS / "dram.genes.gff.gz",
+        fna=RESULTS / "dram.genes.fna.gz",
+        faa=RESULTS / "dram.genes.faa.gz",
+        scaffolds=RESULTS / "dram.scaffolds.fna.gz",
+        genbank=RESULTS / "dram.genbank.gbk.gz",
     output:
         tarball=RESULTS / "dram.annotate.tar.gz",
     log:
         RESULTS / "dram.archive.log",
     conda:
-        "__environment__.yml"
+        "../environments/dram.yml"
+    threads: 24
     params:
         out_dir=RESULTS,
         work_dir=RESULTS / "dram.annotate",
@@ -201,20 +182,23 @@ rule dram__annotate__archive__:
         """
 
 
-rule dram__distill__:
+rule dram__distill:
     """Distill DRAM annotations."""
     input:
         annotations=RESULTS / "dram.annotations.tsv.gz",
-        trnas=RESULTS / "dram.trnas.tsv",
-        rrnas=RESULTS / "dram.rrnas.tsv",
+        trnas=RESULTS / "dram.trnas.tsv.gz",
+        rrnas=RESULTS / "dram.rrnas.tsv.gz",
         dram_db=features["databases"]["dram"],
-        setup=RESULTS / "dram.setup",
+        setup=RESULTS / "dram.setup.txt",
     output:
         work_dir=temp(directory(RESULTS / "dram.distill")),
     log:
         RESULTS / "dram.distill.log",
     conda:
-        "__environment__.yml"
+        "../environments/dram.yml"
+    resources:
+        mem_mb=16 * 1024,
+        runtime=24 * 60,
     shell:
         """
         DRAM.py distill \
@@ -226,7 +210,7 @@ rule dram__distill__:
         """
 
 
-rule dram__distill__archive__:
+rule dram__distill__archive:
     input:
         work_dir=RESULTS / "dram.distill",
     output:
@@ -236,10 +220,11 @@ rule dram__distill__archive__:
     log:
         RESULTS / "dram.distill_archive.log",
     conda:
-        "__environment__.yml"
+        "../environments/dram.yml"
     params:
         out_dir=RESULTS,
-        dram_dir=DRAM,
+    threads: 24
+    localrule: True
     shell:
         """
         for file in genome_stats.tsv metabolism_summary.xlsx product.tsv ; do
@@ -253,13 +238,8 @@ rule dram__distill__archive__:
         """
 
 
-rule dram:
+rule dram__all:
     """Run DRAM on dereplicated genomes."""
     input:
-        rules.dram__annotate__archive__.output,
-        rules.dram__annotate__gtf__.output,
-        rules.dram__distill__archive__.output,
-
-
-localrules:
-    dram__distill__archive__,
+        rules.dram__annotate__archive.output,
+        rules.dram__distill__archive.output,

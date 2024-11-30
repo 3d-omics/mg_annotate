@@ -1,4 +1,4 @@
-rule drep__quality_report__:
+rule drep__quality_report:
     input:
         RESULTS / "checkm2.quality_report.tsv",
     output:
@@ -6,7 +6,8 @@ rule drep__quality_report__:
     log:
         RESULTS / "drep.quality_report.log",
     conda:
-        "__environment__.yml"
+        "../environments/drep.yml"
+    localrule: True
     shell:
         """
         echo \
@@ -24,7 +25,7 @@ rule drep__quality_report__:
         """
 
 
-rule drep__dereplicate__:
+rule drep__dereplicate:
     """Dereplicate all the bins using dRep."""
     input:
         genomes=MAGS,
@@ -34,11 +35,17 @@ rule drep__dereplicate__:
     log:
         RESULTS / "drep.{secondary_ani}.log",
     conda:
-        "__environment__.yml"
+        "../environments/drep.yml"
     params:
         secondary_ani=lambda w: w.secondary_ani,
         minimum_completeness=params["drep"]["minimum_completeness"],
         maximum_contamination=params["drep"]["maximum_contamination"],
+    threads: 24
+    resources:
+        mem_mb=double_ram(4 * 1024),
+        runtime=6 * 60,
+    group:
+        "drep__{secondary_ani}"
     shell:
         """
         dRep dereplicate \
@@ -53,7 +60,7 @@ rule drep__dereplicate__:
         """
 
 
-rule drep__get_fasta__:
+rule drep__get_fasta:
     input:
         work_dir=RESULTS / "drep.{secondary_ani}.dir",
     output:
@@ -61,7 +68,10 @@ rule drep__get_fasta__:
     log:
         RESULTS / "drep.{secondary_ani}.fa.log",
     conda:
-        "__environment__.yml"
+        "../environments/drep.yml"
+    threads: 24
+    group:
+        "drep__{secondary_ani}"
     shell:
         """
         ( cat \
@@ -74,7 +84,7 @@ rule drep__get_fasta__:
         """
 
 
-rule drep__tarball__:
+rule drep__tarball:
     input:
         work_dir=RESULTS / "drep.{secondary_ani}.dir",
     output:
@@ -82,7 +92,10 @@ rule drep__tarball__:
     log:
         RESULTS / "drep.{secondary_ani}.tar.log",
     conda:
-        "__environment__.yml"
+        "../environments/drep.yml"
+    threads: 24
+    group:
+        "drep__{secondary_ani}"
     shell:
         """
         tar \
@@ -95,11 +108,7 @@ rule drep__tarball__:
         """
 
 
-rule drep:
+rule drep__all:
     input:
         [RESULTS / f"drep.{secondary_ani}.tar.gz" for secondary_ani in SECONDARY_ANIS],
         [RESULTS / f"drep.{secondary_ani}.fa.gz" for secondary_ani in SECONDARY_ANIS],
-
-
-localrules:
-    drep__quality_report__,

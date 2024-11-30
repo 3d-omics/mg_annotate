@@ -2,5 +2,4 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - gtdbtk =2.3.2
-  - csvkit =2.0.1
+  - drep =3.4.5

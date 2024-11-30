@@ -1,5 +1,0 @@
-include: "folders.smk"
-include: "__functions__.smk"
-include: "checkm2.smk"
-include: "gtdbtk.smk"
-include: "dram.smk"

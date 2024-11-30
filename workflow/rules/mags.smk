@@ -4,9 +4,10 @@ checkpoint mags:
     output:
         directory(MAGS),
     conda:
-        "__environment__.yml"
+        "base"
     log:
-        "results/mags.log",
+        RESULTS / "mags.log",
+    localrule: True
     shell:
         """
         mkdir --parents {output} 2> {log}
@@ -25,5 +26,6 @@ checkpoint mags:
         """
 
 
-localrules:
-    mags,
+rule mags__all:
+    input:
+        rules.mags.output,

@@ -1,4 +1,4 @@
-rule gtdbtk__classify_wf__:
+rule gtdbtk__classify_wf:
     """Run GTDB-Tk over the dereplicated genomes."""
     input:
         mags=MAGS,
@@ -8,7 +8,11 @@ rule gtdbtk__classify_wf__:
     log:
         RESULTS / "gtdbtk.log",
     conda:
-        "../environments/gtdbtk.yml"
+        "../../../environments/gtdbtk.yml"
+    threads: 24
+    resources:
+        mem_mb=128 * 1024,
+        runtime=24 * 60,
     shell:
         """
         export GTDBTK_DATA_PATH="{input.database}"
@@ -23,7 +27,7 @@ rule gtdbtk__classify_wf__:
         """
 
 
-rule gtdbtk__join_bac_and_ar__:
+rule gtdbtk__join_bac_and_ar:
     input:
         work_dir=GTDBTK,
     output:
@@ -31,45 +35,32 @@ rule gtdbtk__join_bac_and_ar__:
         bac_tree=RESULTS / "gtdbtk.backbone.bac120.classify.tree",
         ar_tree=touch(RESULTS / "gtdbtk.ar53.classify.tree"),
     log:
-        GTDBTK / "gtdbtk.join.log",
+        RESULTS / "gtdbtk.join.log",
     conda:
-        "../environments/csvkit.yml"
+        "../../../environments/gtdbtk.yml"
     shell:
         """
-        if [[ -f {input.work_dir}/gtdbtk.ar122.summary.tsv ]] ; then
-
-            csvstack \
-                --tabs \
-                {input.work_dir}/gtdbtk.bac120.summary.tsv \
-                {input.work_dir}/gtdbtk.ar53.summary.tsv \
-            | csvformat \
-                --out-tabs \
-            > {output.summary} \
-            2> {log}
-
-            cp \
-                --verbose \
-                {input.work_dir}/classify/gtdbtk.ar53.classify.tree \
-                {output.ar_tree} \
-            2>> {log}
-
-        else
-
-            cp \
-                --verbose \
-                {input.work_dir}/gtdbtk.bac120.summary.tsv \
-                {output.summary} \
-
-        fi
+        csvkit concat \
+            {input.work_dir}/gtdbtk.*.summary.tsv \
+        > {output.summary} \
+        2> {log}
 
         cp \
             --verbose \
             {input.work_dir}/classify/gtdbtk.backbone.bac120.classify.tree \
             {output.bac_tree} \
         2>> {log} 1>&2
+
+        if [[ -f {input.work_dir}/classify/gtdbtk.ar53.classify.tree ]] ; then
+            cp \
+                --verbose \
+                {input.work_dir}/classify/gtdbtk.ar53.classify.tree \
+                {output.ar_tree} \
+            2>> {log} 1>&2
+        fi
         """
 
 
-rule gtdbtk:
+rule gtdbtk__all:
     input:
-        rules.gtdbtk__join_bac_and_ar__.output,
+        rules.gtdbtk__join_bac_and_ar.output,

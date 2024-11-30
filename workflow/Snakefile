@@ -17,21 +17,25 @@ params = yaml.load(open(config["params"], "r"), Loader=yaml.SafeLoader)
 # Generate useful variables
 SECONDARY_ANIS = params["drep"]["secondary_anis"]
 
+RESULTS = Path("results")
+
 
 # Import subworkflows
+include: "rules/functions.smk"
 include: "rules/folders.smk"
-include: "rules/__functions__.smk"
 include: "rules/mags.smk"
 include: "rules/checkm2.smk"
 include: "rules/drep.smk"
 include: "rules/gtdbtk.smk"
 include: "rules/dram.smk"
+include: "rules/quast.smk"
 
 
 rule all:
     """Run the entire pipeline"""
     input:
-        rules.checkm2.input,
-        rules.drep.input,
-        rules.gtdbtk.input,
-        rules.dram.input,
+        rules.checkm2__all.input,
+        rules.drep__all.input,
+        rules.gtdbtk__all.input,
+        rules.dram__all.input,
+        rules.quast__all.input,
