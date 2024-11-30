@@ -6,9 +6,13 @@
 import pandas as pd
 import yaml
 
+
 # Import configuration files
-params = yaml.load(open("config/params.yml", "r"), Loader=yaml.SafeLoader)
-features = yaml.load(open("config/features.yml", "r"), Loader=yaml.SafeLoader)
+configfile: "config/config.yml"
+
+
+features = yaml.load(open(config["features"], "r"), Loader=yaml.SafeLoader)
+params = yaml.load(open(config["params"], "r"), Loader=yaml.SafeLoader)
 
 # Generate useful variables
 SECONDARY_ANIS = params["drep"]["secondary_anis"]
