@@ -8,7 +8,7 @@ rule checkm2__predict__:
     log:
         RESULTS / "checkm2.predict.log",
     conda:
-        "checkm2.yml"
+        "../environments/checkm2.yml"
     params:
         out_dir=CHECKM2,
     shell:
@@ -31,6 +31,8 @@ rule checkm2__quality_report__:
         RESULTS / "checkm2.quality_report.tsv",
     log:
         RESULTS / "checkm2.quality_report.log",
+    conda:
+        "base"
     shell:
         """
         cp \
