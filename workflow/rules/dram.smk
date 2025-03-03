@@ -40,7 +40,7 @@ rule dram__setup:
 rule dram__annotate:
     """Annotate dereplicate genomes with DRAM"""
     input:
-        fasta=RESULTS / "dram.mags" / "{mag_id}.fa",
+        fasta=MAGS / "{mag_id}.fa",
         dram_db=features["databases"]["dram"],
         setup=RESULTS / "dram.setup.txt",
     output:
