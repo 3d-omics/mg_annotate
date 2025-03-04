@@ -3,4 +3,5 @@ channels:
   - bioconda
 dependencies:
   - dram =1.4.6
-  - csvtk = 0.31.1
+  - csvtk =0.31.1
+  - htslib =1.21
