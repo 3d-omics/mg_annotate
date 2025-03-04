@@ -44,8 +44,6 @@ rule drep__dereplicate:
     resources:
         mem_mb=double_ram(4 * 1024),
         runtime=6 * 60,
-    group:
-        "drep__{secondary_ani}"
     shell:
         """
         dRep dereplicate \
@@ -70,8 +68,6 @@ rule drep__get_fasta:
     conda:
         "../environments/drep.yml"
     threads: 24
-    group:
-        "drep__{secondary_ani}"
     shell:
         """
         ( cat \
@@ -94,8 +90,6 @@ rule drep__tarball:
     conda:
         "../environments/drep.yml"
     threads: 24
-    group:
-        "drep__{secondary_ani}"
     shell:
         """
         tar \
