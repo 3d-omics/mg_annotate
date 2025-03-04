@@ -2,6 +2,6 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - dram =1.4.6
   - csvtk =0.31.1
+  - dram =1.4.6
   - htslib =1.21
