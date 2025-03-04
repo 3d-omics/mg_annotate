@@ -81,7 +81,7 @@ rule dram__aggregate_tsvs:
     log:
         RESULTS / "dram.aggregate_tsvs.log",
     conda:
-        "../../../environments/dram.yml"
+        "../environments/dram.yml"
     params:
         work_dir=RESULTS / "dram.annotate",
     threads: 24
@@ -109,7 +109,7 @@ rule dram__concatenate_fastas:
     log:
         RESULTS / f"dram.concatenate_fastas.log",
     conda:
-        "../../../environments/dram.yml"
+        "../environments/dram.yml"
     params:
         work_dir=RESULTS / "dram.annotate",
     threads: 24
@@ -136,7 +136,7 @@ rule dram__aggregate_genbank:
     log:
         RESULTS / "dram.genbank.log",
     conda:
-        "../../../environments/dram.yml"
+        "../environments/dram.yml"
     params:
         work_dir=RESULTS / "dram.annotate",
     threads: 24
