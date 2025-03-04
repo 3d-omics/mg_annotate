@@ -102,12 +102,12 @@ rule dram__concatenate_fastas:
     input:
         collect_dram_annotate,
     output:
-        RESULTS / f"dram.genes.fna.gz",
-        RESULTS / f"dram.genes.faa.gz",
-        RESULTS / f"dram.scaffolds.fna.gz",
-        RESULTS / f"dram.genes.gff.gz",
+        RESULTS / "dram.genes.fna.gz",
+        RESULTS / "dram.genes.faa.gz",
+        RESULTS / "dram.scaffolds.fna.gz",
+        RESULTS / "dram.genes.gff.gz",
     log:
-        RESULTS / f"dram.concatenate_fastas.log",
+        RESULTS / "dram.concatenate_fastas.log",
     conda:
         "../environments/dram.yml"
     params:
@@ -184,9 +184,14 @@ rule dram__annotate__archive:
             --use-compress-program="pigz --processes {threads}" \
             --verbose \
             {params.work_dir} \
-        2>> {log} 1>&2
+        2> {log} 1>&2
 
-        rm -rfv {params.work_dir}
+        rm \
+            --recursive \
+            --force \
+            --verbose \
+            {params.work_dir} \
+        2>> {log} 1>&2
         """
 
 
@@ -214,7 +219,7 @@ rule dram__distill:
             --output_dir {output.work_dir} \
             --rrna_path  {input.rrnas} \
             --trna_path  {input.trnas} \
-        2>> {log} 1>&2
+        2> {log} 1>&2
         """
 
 
