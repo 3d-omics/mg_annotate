@@ -71,53 +71,63 @@ rule dram__annotate:
         """
 
 
-for file in ["annotations", "trnas", "rrnas"]:
+rule dram__aggregate_tsvs:
+    input:
+        collect_dram_annotate,
+    output:
+        RESULTS / "dram.annotations.tsv.gz",
+        RESULTS / "dram.trnas.tsv.gz",
+        RESULTS / "dram.rrnas.tsv.gz",
+    log:
+        RESULTS / "dram.aggregate_tsvs.log",
+    conda:
+        "../../../environments/dram.yml"
+    params:
+        work_dir=RESULTS / "dram.annotate",
+    threads: 24
+    shell:
+        """
+        for file in annotations trnas rrnas ; do
 
-    rule:
-        name:
-            f"dram__annotate__aggregate_{file}"
-        input:
-            collect_dram_annotate,
-        output:
-            RESULTS / f"dram.{file}.tsv.gz",
-        log:
-            RESULTS / f"dram.{file}.log",
-        conda:
-            "../environments/dram.yml"
-        params:
-            work_dir=RESULTS / "dram.annotate",
-        shell:
-            f"( csvtk concat {{params.work_dir}}/*/{file} "
-            f"| sed -r 's/[[:alnum:]]+:bin_[0-9]+_([[:alnum:]]+:bin_[0-9]+@contig_[0-9]+)/\1/g' "
-            f"| bgzip --compress-level 9 "
-            f"> {{output}} "
-            f") 2> {{log}}"
+            csvtk concat --tabs {params.work_dir}/*/$file.tsv \
+            | sed -r 's/[[:alnum:]]+:bin_[0-9]+_([[:alnum:]]+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
+            | bgzip --compress-level 9 --threads {threads} \
+            > {RESULTS}/dram.$file.tsv.gz \
 
-
-for file in ["genes.gff", "genes.fna", "genes.faa", "scaffolds.fna"]:
-
-    rule:
-        name:
-            f"dram__annotate__concatenate_{file}"
-        input:
-            collect_dram_annotate,
-        output:
-            RESULTS / f"dram.{file}.gz",
-        log:
-            RESULTS / f"dram.{file}.log",
-        conda:
-            "../environments/dram.yml"
-        params:
-            work_dir=RESULTS / "dram.annotate",
-        shell:
-            f"( cat {{params.work_dir}}/*/{file} "
-            f"| sed -r 's/[[:alnum:]]+:bin_[0-9]+_([[:alnum:]]+:bin_[0-9]+@contig_[0-9]+)/\1/g' "
-            f"| bgzip --compress-level 9 "
-            f"> {{output}}"
-            f") 2> {{log}}"
+        done 2> {log} 1>&2
+        """
 
 
-rule dram__annotate__aggregate_genbank:
+rule dram__concatenate_fastas:
+    input:
+        collect_dram_annotate,
+    output:
+        RESULTS / f"dram.genes.fna.gz",
+        RESULTS / f"dram.genes.faa.gz",
+        RESULTS / f"dram.scaffolds.fna.gz",
+        RESULTS / f"dram.genes.gff.gz",
+    log:
+        RESULTS / f"dram.concatenate_fastas.log",
+    conda:
+        "../../../environments/dram.yml"
+    params:
+        work_dir=RESULTS / "dram.annotate",
+    threads: 24
+    shell:
+        """
+        for file in genes.fna genes.faa scaffolds.fna genes.gff ; do
+
+            sed \
+                -r 's/[[:alnum:]]+:bin_[0-9]+_([[:alnum:]]+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
+                {params.work_dir}/*/$file \
+            | bgzip --compress-level 9 --threads {threads} \
+            > {RESULTS}/dram.$file.gz \
+
+        done 2> {log}
+        """
+
+
+rule dram__aggregate_genbank:
     """Aggregate all DRAM genbank files"""
     input:
         collect_dram_annotate,
@@ -126,20 +136,18 @@ rule dram__annotate__aggregate_genbank:
     log:
         RESULTS / "dram.genbank.log",
     conda:
-        "../environments/dram.yml"
+        "../../../environments/dram.yml"
     params:
         work_dir=RESULTS / "dram.annotate",
-    resources:
-        runtime=6 * 60,
+    threads: 24
     shell:
         """
-        ( cat \
-            --verbose \
+        ( sed \
+            -r 's/[[:alnum:]]+:bin_[0-9]+_([[:alnum:]]+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
             {params.work_dir}/*/genbank/*.gbk \
-        | sed \
-            -r 's/[[:alnum:]]+:bin_[0-9]+_([[:alnum:]]+:bin_[0-9]+@contig_[0-9]+)/\1/g' \
         | bgzip \
             --compress-level 9 \
+            --threads {threads} \
         > {output} \
         ) 2> {log}
         """
