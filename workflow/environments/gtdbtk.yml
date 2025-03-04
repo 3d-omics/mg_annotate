@@ -3,4 +3,4 @@ channels:
   - bioconda
 dependencies:
   - gtdbtk =2.3.2
-  - csvkit =2.0.1
+  - csvtk =0.31.0
