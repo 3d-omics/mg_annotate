@@ -210,7 +210,7 @@ rule dram__distill:
     conda:
         "../environments/dram.yml"
     resources:
-        mem_mb=16 * 1024,
+        mem_mb=double_ram(16 * 1024),
         runtime=24 * 60,
     shell:
         """
