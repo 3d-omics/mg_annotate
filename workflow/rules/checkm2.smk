@@ -12,7 +12,7 @@ rule checkm2:
         "../environments/checkm2.yml"
     threads: 24
     resources:
-        mem_mb=32 * 1024,
+        mem_mb=64 * 1024,
         runtime=24 * 60,
     shell:
         """
