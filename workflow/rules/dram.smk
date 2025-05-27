@@ -72,6 +72,7 @@ rule dram__annotate:
 
 
 rule dram__aggregate_tsvs:
+    """Join all the annotation, trna and rrna tsvs, while fixing the contig names"""
     input:
         collect_dram_annotate,
     output:
@@ -99,6 +100,7 @@ rule dram__aggregate_tsvs:
 
 
 rule dram__concatenate_fastas:
+    """Concatenate all the FASTA files (gene fnas, faa, scaffolds), and GFFs while fixing the contig names."""
     input:
         collect_dram_annotate,
     output:
@@ -113,6 +115,8 @@ rule dram__concatenate_fastas:
     params:
         work_dir=RESULTS / "dram.annotate",
     threads: 24
+    resources:
+        runtime=24 * 60,
     shell:
         """
         for file in genes.fna genes.faa scaffolds.fna genes.gff ; do
@@ -233,6 +237,7 @@ rule dram__distill:
 
 
 rule dram__distill__archive:
+    """Move the distill files"""
     input:
         work_dir=RESULTS / "dram.distill",
     output:
