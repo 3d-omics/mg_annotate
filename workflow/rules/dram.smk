@@ -154,13 +154,13 @@ rule dram__concatenate_gff:
     threads: 24
     shell:
         """
-        sed \
+        ( sed \
             --regexp-extended \
             's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
             {params.work_dir}/*/genes.gff \
         | bgzip --compress-level 9 --threads {threads} \
         > {output} \
-        2> {log} 1>&2
+        ) 2> {log}
         """
 
 
