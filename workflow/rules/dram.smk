@@ -158,7 +158,7 @@ rule dram__concatenate_gff:
             --keep-order \
             sed \
                 --regexp-extended \
-                's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
+                \\'s/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g\\' \
         ::: {params.work_dir}/*/genes.gff \
         | bgzip \
             --compress-level 9 \
