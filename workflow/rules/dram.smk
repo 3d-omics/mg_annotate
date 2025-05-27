@@ -132,24 +132,33 @@ rule dram__aggregate_genbank:
     input:
         collect_dram_annotate,
     output:
-        RESULTS / "dram.genbank.gbk.gz",
+        directory(RESULTS / "dram.genbank"),
     log:
         RESULTS / "dram.genbank.log",
     conda:
         "../environments/dram.yml"
     params:
         work_dir=RESULTS / "dram.annotate",
+        out_dir=RESULTS / "dram.genbank",
     threads: 24
     shell:
         """
-        ( sed \
-            -r 's/\\S+:bin_[0-9]+_(\\S++:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
-            {params.work_dir}/*/genbank/*.gbk \
-        | bgzip \
-            --compress-level 9 \
-            --threads {threads} \
-        > {output} \
-        ) 2> {log}
+        mkdir --parents {output}
+
+        for file in $(find {params.work_dir} -name "*.gbk" | sort) ; do
+
+            filename=$(basename $file .gbk)
+
+            sed \
+                -r 's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
+                $file \
+            | bgzip \
+                --compress-level 9 \
+                --threads {threads} \
+                --stdout \
+            > {params.out_dir}/$filename.gbk.gz \
+
+        done
         """
 
 
@@ -165,7 +174,7 @@ rule dram__annotate__archive:
         fna=RESULTS / "dram.genes.fna.gz",
         faa=RESULTS / "dram.genes.faa.gz",
         scaffolds=RESULTS / "dram.scaffolds.fna.gz",
-        genbank=RESULTS / "dram.genbank.gbk.gz",
+        genbank=RESULTS / "dram.genbank",
     output:
         tarball=RESULTS / "dram.annotate.tar.gz",
     log:
