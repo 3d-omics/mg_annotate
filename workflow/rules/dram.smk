@@ -156,9 +156,7 @@ rule dram__concatenate_gff:
         """
         ( parallel \
             --keep-order \
-            sed \
-                --regexp-extended \
-                \\'s/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g\\' \
+            'sed --regexp-extended "s/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g"' \
         ::: {params.work_dir}/*/genes.gff \
         | bgzip \
             --compress-level 9 \
@@ -196,10 +194,7 @@ rule dram__aggregate_genbank:
             {params.out_dir} \
             -name "*.gbk" \
         | parallel \
-            sed \
-                --in-place \
-                --regexp-extended \
-                's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
+            'sed --in-place --regexp-extended "s/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g"' \
         ) 2>> {log} 1>&2
 
         ( find \
