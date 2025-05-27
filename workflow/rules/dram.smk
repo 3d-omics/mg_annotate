@@ -90,12 +90,18 @@ rule dram__aggregate_tsvs:
         """
         for file in annotations trnas rrnas ; do
 
-            csvtk concat --tabs {params.work_dir}/*/$file.tsv \
-            | sed -r 's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
-            | bgzip --compress-level 9 --threads {threads} \
-            > {RESULTS}/dram.$file.tsv.gz \
+            ( csvtk concat \
+                --tabs \
+                {params.work_dir}/*/$file.tsv \
+            | sed
+                --regex-extended \
+                's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
+            | bgzip \
+                --compress-level 9 \
+                --threads {threads} \
+            ) > {RESULTS}/dram.$file.tsv.gz \
 
-        done 2> {log} 1>&2
+        done 2> {log}
         """
 
 
@@ -119,15 +125,43 @@ rule dram__concatenate_fastas:
         runtime=24 * 60,
     shell:
         """
-        for file in genes.fna genes.faa scaffolds.fna genes.gff ; do
+        for file in genes.fna genes.faa scaffolds.fna ; do
 
             sed \
-                -r 's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
+                --regex-extended \
+                's/^>\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/>\\1/g' \
                 {params.work_dir}/*/$file \
-            | bgzip --compress-level 9 --threads {threads} \
+            | bgzip \
+                --compress-level 9 \
+                --threads {threads} \
             > {RESULTS}/dram.$file.gz \
 
         done 2> {log}
+        """
+
+
+rule dram__concatenate_gff:
+    """Concatenate all the GFF files while fixing the contig names."""
+    input:
+        collect_dram_annotate,
+    output:
+        RESULTS / "dram.genes.gff.gz",
+    log:
+        RESULTS / "dram.concatenate_gff.log",
+    conda:
+        "../environments/dram.yml"
+    params:
+        work_dir=RESULTS / "dram.annotate",
+    threads: 24
+    shell:
+        """
+        sed \
+            --regex-extended \
+            's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
+            {params.work_dir}/*/genes.gff \
+        | bgzip --compress-level 9 --threads {threads} \
+        > {output} \
+        2> {log} 1>&2
         """
 
 
@@ -155,12 +189,22 @@ rule dram__aggregate_genbank:
             {params.out_dir}/ \
         2>> {log} 1>&2
 
-        ( find {params.out_dir} -name "*.gbk" \
-        | parallel sed -i -r 's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
+        ( find \
+            {params.out_dir} \
+            -name "*.gbk" \
+        | parallel \
+            sed \
+                --in-place \
+                --regex-extended \
+                's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
         ) 2>> {log} 1>&2
 
-        ( find {params.out_dir} -name "*.gbk" \
-        | parallel bgzip --compress-level 9 \
+        ( find \
+            {params.out_dir} \
+            -name "*.gbk" \
+        | parallel \
+            bgzip \
+                --compress-level 9 \
         ) 2>> {log} 1>&2
         """
 
