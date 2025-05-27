@@ -147,22 +147,21 @@ rule dram__aggregate_genbank:
     threads: 24
     shell:
         """
-        mkdir --parents {output}
+        mkdir --parents --verbose {output} 2> {log } 1>&2
 
-        for file in $(find {params.work_dir} -name "*.gbk" | sort) ; do
+        rsync \
+            -Pravt \
+            {params.work_dir}/*/*.gbk \
+            {params.out_dir}/ \
+        2>> {log} 1>&2
 
-            filename=$(basename $file .gbk)
+        ( find {params.out_dir} -name "*.gbk" \
+        | parallel sed -i -r 's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
+        ) 2>> {log} 1>&2
 
-            sed \
-                -r 's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
-                $file \
-            | bgzip \
-                --compress-level 9 \
-                --threads {threads} \
-                --stdout \
-            > {params.out_dir}/$filename.gbk.gz \
-
-        done
+        ( find {params.out_dir} -name "*.gbk" \
+        | parallel bgzip --compress-level 9 \
+        ) 2>> {log} 1>&2
         """
 
 

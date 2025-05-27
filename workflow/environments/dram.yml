@@ -5,3 +5,4 @@ dependencies:
   - csvtk =0.31.1
   - dram =1.4.6
   - htslib =1.21
+  - parallel
