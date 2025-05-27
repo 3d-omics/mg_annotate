@@ -94,7 +94,7 @@ rule dram__aggregate_tsvs:
                 --tabs \
                 {params.work_dir}/*/$file.tsv \
             | sed
-                --regex-extended \
+                --regexp-extended \
                 's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
             | bgzip \
                 --compress-level 9 \
@@ -127,7 +127,7 @@ rule dram__concatenate_fastas:
         for file in genes.fna genes.faa scaffolds.fna ; do
 
             sed \
-                --regex-extended \
+                --regexp-extended \
                 's/^>\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/>\\1/g' \
                 {params.work_dir}/*/$file \
             | bgzip \
@@ -155,7 +155,7 @@ rule dram__concatenate_gff:
     shell:
         """
         sed \
-            --regex-extended \
+            --regexp-extended \
             's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
             {params.work_dir}/*/genes.gff \
         | bgzip --compress-level 9 --threads {threads} \
@@ -194,7 +194,7 @@ rule dram__aggregate_genbank:
         | parallel \
             sed \
                 --in-place \
-                --regex-extended \
+                --regexp-extended \
                 's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
         ) 2>> {log} 1>&2
 
