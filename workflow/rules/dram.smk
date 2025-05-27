@@ -106,14 +106,13 @@ rule dram__aggregate_tsvs:
 
 
 rule dram__concatenate_fastas:
-    """Concatenate all the FASTA files (gene fnas, faa, scaffolds), and GFFs while fixing the contig names."""
+    """Concatenate all the FASTA files while fixing the contig names."""
     input:
         collect_dram_annotate,
     output:
         RESULTS / "dram.genes.fna.gz",
         RESULTS / "dram.genes.faa.gz",
         RESULTS / "dram.scaffolds.fna.gz",
-        RESULTS / "dram.genes.gff.gz",
     log:
         RESULTS / "dram.concatenate_fastas.log",
     conda:
