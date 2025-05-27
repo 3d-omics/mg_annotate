@@ -155,6 +155,7 @@ rule dram__concatenate_gff:
     shell:
         """
         ( parallel \
+            --keep-order \
             sed \
                 --regexp-extended \
                 's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
