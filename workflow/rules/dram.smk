@@ -90,7 +90,7 @@ rule dram__aggregate_tsvs:
         for file in annotations trnas rrnas ; do
 
             csvtk concat --tabs {params.work_dir}/*/$file.tsv \
-            | sed -r 's/[[:alnum:]]+:bin_[0-9]+_([[:alnum:]]+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
+            | sed -r 's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
             | bgzip --compress-level 9 --threads {threads} \
             > {RESULTS}/dram.$file.tsv.gz \
 
@@ -118,7 +118,7 @@ rule dram__concatenate_fastas:
         for file in genes.fna genes.faa scaffolds.fna genes.gff ; do
 
             sed \
-                -r 's/[[:alnum:]]+:bin_[0-9]+_([[:alnum:]]+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
+                -r 's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
                 {params.work_dir}/*/$file \
             | bgzip --compress-level 9 --threads {threads} \
             > {RESULTS}/dram.$file.gz \
@@ -143,7 +143,7 @@ rule dram__aggregate_genbank:
     shell:
         """
         ( sed \
-            -r 's/[[:alnum:]]+:bin_[0-9]+_([[:alnum:]]+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
+            -r 's/\\S+:bin_[0-9]+_(\\S++:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
             {params.work_dir}/*/genbank/*.gbk \
         | bgzip \
             --compress-level 9 \
