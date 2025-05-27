@@ -28,7 +28,7 @@ rule checkm2:
 
         cp \
             --verbose \
-            {output.tmp_dir}/quality_report.tsv \
+            {params.workdir}/quality_report.tsv \
             {output.report} \
         2>> {log} 1>&2
 
