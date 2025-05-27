@@ -5,7 +5,6 @@ rule checkm2:
         db=features["databases"]["checkm2"],
     output:
         report=RESULTS / "checkm2.quality_report.tsv",
-        tmp_dir=temp(directory(RESULTS / "checkm2.quality_report")),
     log:
         RESULTS / "checkm2.quality_report.log",
     conda:
@@ -14,13 +13,15 @@ rule checkm2:
     resources:
         mem_mb=64 * 1024,
         runtime=24 * 60,
+    params:
+        workdir=RESULTS / "checkm2.quality_report",
     shell:
         """
         checkm2 predict \
             --threads {threads} \
             --input {input.mags} \
             --extension .fa \
-            --output-directory {output.tmp_dir} \
+            --output-directory {params.workdir} \
             --database_path {input.db}/uniref100.KO.1.dmnd \
             --remove_intermediates \
         2>> {log} 1>&2
@@ -29,6 +30,12 @@ rule checkm2:
             --verbose \
             {output.tmp_dir}/quality_report.tsv \
             {output.report} \
+        2>> {log} 1>&2
+
+        rm \
+            --recursive \
+            --force \
+            {params.workdir} \
         2>> {log} 1>&2
         """
 
