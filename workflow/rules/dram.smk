@@ -182,7 +182,7 @@ rule dram__aggregate_genbank:
     threads: 24
     shell:
         """
-        mkdir --parents --verbose {output} 2> {log } 1>&2
+        mkdir --parents --verbose {output} 2> {log} 1>&2
 
         rsync \
             -Pravt \
@@ -220,6 +220,7 @@ rule dram__annotate__archive:
         faa=RESULTS / "dram.genes.faa.gz",
         scaffolds=RESULTS / "dram.scaffolds.fna.gz",
         genbank=RESULTS / "dram.genbank",
+        subfolders=collect_dram_annotate,
     output:
         tarball=RESULTS / "dram.annotate.tar.gz",
     log:
