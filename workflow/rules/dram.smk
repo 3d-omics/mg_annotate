@@ -93,7 +93,7 @@ rule dram__aggregate_tsvs:
             ( csvtk concat \
                 --tabs \
                 {params.work_dir}/*/$file.tsv \
-            | sed
+            | sed \
                 --regexp-extended \
                 's/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g' \
             | bgzip \
@@ -186,7 +186,7 @@ rule dram__aggregate_genbank:
 
         rsync \
             -Pravt \
-            {params.work_dir}/*/*.gbk \
+            {params.work_dir}/*/genbank/*.gbk \
             {params.out_dir}/ \
         2>> {log} 1>&2
 
