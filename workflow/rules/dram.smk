@@ -158,6 +158,10 @@ rule dram__concatenate_gff:
             --keep-order \
             'sed --regexp-extended "s/\\S+:bin_[0-9]+_(\\S+:bin_[0-9]+@contig_[0-9]+)/\\1/g"' \
         ::: {params.work_dir}/*/genes.gff \
+        | grep -v ^"#" \
+        | awk \
+            -v OFS="\\t" \
+            '{{$9 = "ID="$9 ; print}}' \
         | bgzip \
             --compress-level 9 \
             --threads {threads} \
